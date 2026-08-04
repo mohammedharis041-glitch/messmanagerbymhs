@@ -151,7 +151,7 @@ function SettingsPage() {
               {isOwner ? (
                 <Button
                   className="rounded-2xl"
-                  onClick={() => void patch({ name: name.trim() || room?.name })}
+                  onClick={() => void patch({ name: name.trim() || room?.name || "Mess room" })}
                   disabled={updateRoom.isPending}
                 >
                   Save
