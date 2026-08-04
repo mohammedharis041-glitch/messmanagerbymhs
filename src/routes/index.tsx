@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Multi-room mess accounting with roles, live dashboards, category analytics and automatic settlement instructions.",
+          "Track shared mess expenses, contributions and wallet balance across rooms, then settle up in the fewest transfers. Works offline-friendly on phone, tablet and desktop.",
       },
     ],
   }),
