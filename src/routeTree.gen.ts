@@ -16,6 +16,7 @@ import { Route as AuthenticatedRoomsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedRoomsRoomIdRouteImport } from './routes/_authenticated/rooms.$roomId'
 import { Route as AuthenticatedRoomsRoomIdIndexRouteImport } from './routes/_authenticated/rooms.$roomId.index'
 import { Route as AuthenticatedRoomsRoomIdExpensesRouteImport } from './routes/_authenticated/rooms.$roomId.expenses'
+import { Route as AuthenticatedRoomsRoomIdMembersRouteImport } from './routes/_authenticated/rooms.$roomId.members'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -54,6 +55,12 @@ const AuthenticatedRoomsRoomIdExpensesRoute =
     path: '/expenses',
     getParentRoute: () => AuthenticatedRoomsRoomIdRoute,
   } as any)
+const AuthenticatedRoomsRoomIdMembersRoute =
+  AuthenticatedRoomsRoomIdMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedRoomsRoomIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/rooms/$roomId': typeof AuthenticatedRoomsRoomIdRouteWithChildren
   '/rooms/': typeof AuthenticatedRoomsIndexRoute
   '/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
+  '/rooms/$roomId/members': typeof AuthenticatedRoomsRoomIdMembersRoute
   '/rooms/$roomId/': typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -68,6 +76,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/rooms': typeof AuthenticatedRoomsIndexRoute
   '/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
+  '/rooms/$roomId/members': typeof AuthenticatedRoomsRoomIdMembersRoute
   '/rooms/$roomId': typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 export interface FileRoutesById {
@@ -78,6 +87,7 @@ export interface FileRoutesById {
   '/_authenticated/rooms/$roomId': typeof AuthenticatedRoomsRoomIdRouteWithChildren
   '/_authenticated/rooms/': typeof AuthenticatedRoomsIndexRoute
   '/_authenticated/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
+  '/_authenticated/rooms/$roomId/members': typeof AuthenticatedRoomsRoomIdMembersRoute
   '/_authenticated/rooms/$roomId/': typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -88,9 +98,16 @@ export interface FileRouteTypes {
     | '/rooms/$roomId'
     | '/rooms/'
     | '/rooms/$roomId/expenses'
+    | '/rooms/$roomId/members'
     | '/rooms/$roomId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/rooms' | '/rooms/$roomId/expenses' | '/rooms/$roomId'
+  to:
+    | '/'
+    | '/auth'
+    | '/rooms'
+    | '/rooms/$roomId/expenses'
+    | '/rooms/$roomId/members'
+    | '/rooms/$roomId'
   id:
     | '__root__'
     | '/'
@@ -99,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rooms/$roomId'
     | '/_authenticated/rooms/'
     | '/_authenticated/rooms/$roomId/expenses'
+    | '/_authenticated/rooms/$roomId/members'
     | '/_authenticated/rooms/$roomId/'
   fileRoutesById: FileRoutesById
 }
@@ -159,11 +177,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRoomsRoomIdExpensesRouteImport
       parentRoute: typeof AuthenticatedRoomsRoomIdRoute
     }
+    '/_authenticated/rooms/$roomId/members': {
+      id: '/_authenticated/rooms/$roomId/members'
+      path: '/members'
+      fullPath: '/rooms/$roomId/members'
+      preLoaderRoute: typeof AuthenticatedRoomsRoomIdMembersRouteImport
+      parentRoute: typeof AuthenticatedRoomsRoomIdRoute
+    }
   }
 }
 
 interface AuthenticatedRoomsRoomIdRouteChildren {
   AuthenticatedRoomsRoomIdExpensesRoute: typeof AuthenticatedRoomsRoomIdExpensesRoute
+  AuthenticatedRoomsRoomIdMembersRoute: typeof AuthenticatedRoomsRoomIdMembersRoute
   AuthenticatedRoomsRoomIdIndexRoute: typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 
@@ -171,6 +197,7 @@ const AuthenticatedRoomsRoomIdRouteChildren: AuthenticatedRoomsRoomIdRouteChildr
   {
     AuthenticatedRoomsRoomIdExpensesRoute:
       AuthenticatedRoomsRoomIdExpensesRoute,
+    AuthenticatedRoomsRoomIdMembersRoute: AuthenticatedRoomsRoomIdMembersRoute,
     AuthenticatedRoomsRoomIdIndexRoute: AuthenticatedRoomsRoomIdIndexRoute,
   }
 
