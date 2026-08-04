@@ -122,7 +122,7 @@ function MembersPage() {
           <CardDescription>Share this code — anyone with it can join this room.</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center gap-3">
-          <code className="flex-1 rounded-2xl bg-surface px-4 py-3 text-center font-[Outfit] text-2xl font-semibold tracking-[0.35em]">
+          <code className="flex-1 rounded-2xl bg-surface px-3 py-2.5 text-center font-[Outfit] text-lg font-semibold tracking-[0.25em] sm:px-4 sm:py-3 sm:text-2xl sm:tracking-[0.35em]">
             {room?.invite_code ?? "······"}
           </code>
           <Button onClick={() => void copyInvite()} variant="outline" className="rounded-2xl">

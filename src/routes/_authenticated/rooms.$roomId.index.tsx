@@ -48,7 +48,7 @@ function RoomDashboard() {
   const recent = stats.filtered.slice(0, 5);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <Tabs value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
         <TabsList className="w-full justify-between rounded-2xl">
           {periods.map((p) => (
@@ -60,19 +60,19 @@ function RoomDashboard() {
       </Tabs>
 
       <Card className="animate-slide-up overflow-hidden rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <p className="text-sm/relaxed opacity-90">Mess wallet balance</p>
-          <p className="mt-1 font-[Outfit] text-4xl font-bold tabular-nums">
+          <p className="mt-1 font-[Outfit] text-3xl font-bold sm:text-4xl tabular-nums">
             {formatCurrency(stats.walletBalance, currency)}
           </p>
-          <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-2xl bg-white/15 p-3">
+          <div className="mt-4 grid grid-cols-2 gap-2.5 text-xs sm:mt-5 sm:gap-3 sm:text-sm">
+            <div className="rounded-2xl bg-white/15 p-2.5 sm:p-3">
               <span className="flex items-center gap-1 opacity-90">
                 <ArrowDownRight className="size-4" /> Contributions
               </span>
               <p className="mt-1 font-semibold tabular-nums">{formatCurrency(stats.totalContribution, currency)}</p>
             </div>
-            <div className="rounded-2xl bg-black/15 p-3">
+            <div className="rounded-2xl bg-black/15 p-2.5 sm:p-3">
               <span className="flex items-center gap-1 opacity-90">
                 <ArrowUpRight className="size-4" /> Expenses
               </span>
@@ -82,7 +82,7 @@ function RoomDashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
         <StatCard icon={Receipt} label="Entries" value={String(stats.expenseCount)} delay={0} />
         <StatCard icon={Users} label="Members" value={String(members?.length ?? 0)} delay={60} />
         <StatCard icon={TrendingUp} label="Per head" value={formatCurrency(stats.perHead, currency)} delay={120} />
@@ -94,13 +94,13 @@ function RoomDashboard() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <Card className="animate-slide-up rounded-3xl">
-          <CardHeader>
-            <CardTitle className="font-[Outfit] text-base">Spending trend</CardTitle>
-            <CardDescription>Daily totals for the selected period</CardDescription>
+          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+            <CardTitle className="font-[Outfit] text-sm sm:text-base">Spending trend</CardTitle>
+            <CardDescription className="text-xs">Daily totals for the selected period</CardDescription>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-52 px-3 sm:h-64 sm:px-6">
             {stats.byDay.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats.byDay} margin={{ left: -18, right: 8, top: 8 }}>
@@ -138,11 +138,11 @@ function RoomDashboard() {
         </Card>
 
         <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: "80ms" }}>
-          <CardHeader>
-            <CardTitle className="font-[Outfit] text-base">By category</CardTitle>
-            <CardDescription>Where the money went</CardDescription>
+          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+            <CardTitle className="font-[Outfit] text-sm sm:text-base">By category</CardTitle>
+            <CardDescription className="text-xs">Where the money went</CardDescription>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-52 px-3 sm:h-64 sm:px-6">
             {stats.byCategory.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -177,11 +177,11 @@ function RoomDashboard() {
         </Card>
 
         <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: "160ms" }}>
-          <CardHeader>
-            <CardTitle className="font-[Outfit] text-base">Paid by member</CardTitle>
-            <CardDescription>Out-of-pocket spend per person</CardDescription>
+          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+            <CardTitle className="font-[Outfit] text-sm sm:text-base">Paid by member</CardTitle>
+            <CardDescription className="text-xs">Out-of-pocket spend per person</CardDescription>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-52 px-3 sm:h-64 sm:px-6">
             {stats.balances.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.balances} margin={{ left: -18, right: 8, top: 8 }}>
@@ -207,16 +207,16 @@ function RoomDashboard() {
         </Card>
 
         <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: "240ms" }}>
-          <CardHeader>
-            <CardTitle className="font-[Outfit] text-base">Settle up</CardTitle>
-            <CardDescription>Fewest transfers to square the period</CardDescription>
+          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+            <CardTitle className="font-[Outfit] text-sm sm:text-base">Settle up</CardTitle>
+            <CardDescription className="text-xs">Fewest transfers to square the period</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 p-4 pt-0 sm:p-6 sm:pt-0">
             {stats.transfers.length ? (
               stats.transfers.map((t) => (
                 <div
                   key={`${t.fromId}-${t.toId}`}
-                  className="flex items-center justify-between rounded-2xl bg-surface px-4 py-3 text-sm"
+                  className="flex items-center justify-between rounded-2xl bg-surface px-3 py-2.5 text-[13px] sm:px-4 sm:py-3 sm:text-sm"
                 >
                   <span className="truncate">
                     <span className="font-medium">{t.from}</span> pays <span className="font-medium">{t.to}</span>
@@ -234,10 +234,10 @@ function RoomDashboard() {
       </div>
 
       <Card className="animate-slide-up rounded-3xl">
-        <CardHeader className="flex-row items-center justify-between space-y-0">
+        <CardHeader className="flex-row items-center justify-between space-y-0 p-4 pb-2 sm:p-6 sm:pb-3">
           <div>
-            <CardTitle className="font-[Outfit] text-base">Recent expenses</CardTitle>
-            <CardDescription>Latest entries in this period</CardDescription>
+            <CardTitle className="font-[Outfit] text-sm sm:text-base">Recent expenses</CardTitle>
+            <CardDescription className="text-xs">Latest entries in this period</CardDescription>
           </div>
           <Button asChild variant="ghost" size="sm" className="rounded-full">
             <Link to="/rooms/$roomId/expenses" params={{ roomId }}>
@@ -245,10 +245,10 @@ function RoomDashboard() {
             </Link>
           </Button>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 p-4 pt-0 sm:p-6 sm:pt-0">
           {recent.length ? (
             recent.map((e) => (
-              <div key={e.id} className="flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3">
+              <div key={e.id} className="flex items-center justify-between gap-3 rounded-2xl bg-surface px-3 py-2.5 sm:px-4 sm:py-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{e.title}</p>
                   <p className="text-xs text-muted-foreground">{formatDate(e.spent_at)}</p>
@@ -282,12 +282,12 @@ function StatCard({
 }) {
   return (
     <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: `${delay}ms` }}>
-      <CardContent className="p-4">
-        <div className="mb-2 inline-flex size-9 items-center justify-center rounded-xl bg-primary-container text-primary-container-foreground">
+      <CardContent className="p-3 sm:p-4">
+        <div className="mb-1.5 inline-flex size-8 sm:mb-2 sm:size-9 items-center justify-center rounded-xl bg-primary-container text-primary-container-foreground">
           <Icon className="size-4" />
         </div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="font-[Outfit] text-lg font-semibold tabular-nums">{value}</p>
+        <p className="font-[Outfit] text-base font-semibold tabular-nums sm:text-lg">{value}</p>
       </CardContent>
     </Card>
   );

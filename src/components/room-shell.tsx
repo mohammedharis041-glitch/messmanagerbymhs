@@ -46,9 +46,9 @@ export function RoomShell({
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <header className="safe-top sticky top-0 z-30 border-b border-border/70 glass-panel">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3">
           <Button asChild variant="ghost" size="icon" className="rounded-full">
             <Link to="/rooms" aria-label="All rooms">
               <ArrowLeft className="size-5" />
@@ -64,7 +64,7 @@ export function RoomShell({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="rounded-full outline-none ring-ring focus-visible:ring-2" aria-label="Account">
-                <Avatar className="size-9 border border-border">
+                <Avatar className="size-8 border border-border sm:size-9">
                   <AvatarImage src={profile?.avatar_url ?? undefined} alt="" />
                   <AvatarFallback className="bg-primary-container text-primary-container-foreground">
                     {initials(profile?.full_name ?? user?.email)}
@@ -111,7 +111,7 @@ export function RoomShell({
         </nav>
       </header>
 
-      <main key={pathname} className="animate-page mx-auto w-full max-w-5xl px-4 py-5">
+      <main key={pathname} className="animate-page mx-auto w-full max-w-5xl px-3 py-4 sm:px-4 sm:py-5">
         {children}
       </main>
 
@@ -128,7 +128,7 @@ export function RoomShell({
               >
                 <span
                   className={cn(
-                    "flex h-8 w-16 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.05,0.7,0.1,1)]",
+                    "flex h-7 w-14 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.05,0.7,0.1,1)]",
                     active
                       ? "scale-[1.12] bg-primary-container text-primary-container-foreground"
                       : "scale-100 text-muted-foreground",

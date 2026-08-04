@@ -115,10 +115,10 @@ function RoomsPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl px-4 py-6">
+      <main className="mx-auto w-full max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="font-[Outfit] text-2xl font-semibold">Your rooms</h2>
+            <h2 className="font-[Outfit] text-xl font-semibold sm:text-2xl">Your rooms</h2>
             <p className="text-sm text-muted-foreground">Each room keeps its own wallet, members and expenses.</p>
           </div>
           <div className="flex gap-2">
@@ -261,8 +261,8 @@ function RoomsPage() {
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <Card className="rounded-3xl border-border transition-all duration-200 hover:elevation-2 hover:-translate-y-0.5">
-                  <CardContent className="flex items-center gap-4 p-5">
-                    <div className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary-container font-[Outfit] text-lg font-semibold text-primary-container-foreground">
+                  <CardContent className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
+                    <div className="inline-flex size-10 shrink-0 sm:size-12 items-center justify-center rounded-2xl bg-primary-container font-[Outfit] text-lg font-semibold text-primary-container-foreground">
                       {room.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
