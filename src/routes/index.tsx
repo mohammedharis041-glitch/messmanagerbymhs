@@ -61,9 +61,8 @@ function Landing() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="rounded-full px-7">
-              <Link to="/auth" search={{ mode: "signin" }}>
-                I already have an account
-              </Link>
+              <Link to="/auth">I already have an account</Link>
+
             </Button>
           </div>
         </header>
