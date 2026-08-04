@@ -144,8 +144,9 @@ function ExpensesPage() {
     const values = expenseSchema.parse(raw);
     try {
       await saveExpense.mutateAsync({
-        id: editing?.id,
+        ...(editing ? { id: editing.id } : {}),
         userId: user.id,
+
         values: {
           title: values.title,
           amount: values.amount,

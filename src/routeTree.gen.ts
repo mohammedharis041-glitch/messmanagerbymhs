@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRoomsIndexRouteImport } from './routes/_authenticated/rooms.index'
 import { Route as AuthenticatedRoomsRoomIdRouteImport } from './routes/_authenticated/rooms.$roomId'
 import { Route as AuthenticatedRoomsRoomIdIndexRouteImport } from './routes/_authenticated/rooms.$roomId.index'
+import { Route as AuthenticatedRoomsRoomIdExpensesRouteImport } from './routes/_authenticated/rooms.$roomId.expenses'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,18 +48,26 @@ const AuthenticatedRoomsRoomIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedRoomsRoomIdRoute,
   } as any)
+const AuthenticatedRoomsRoomIdExpensesRoute =
+  AuthenticatedRoomsRoomIdExpensesRouteImport.update({
+    id: '/expenses',
+    path: '/expenses',
+    getParentRoute: () => AuthenticatedRoomsRoomIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/rooms/$roomId': typeof AuthenticatedRoomsRoomIdRouteWithChildren
   '/rooms/': typeof AuthenticatedRoomsIndexRoute
+  '/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
   '/rooms/$roomId/': typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/rooms': typeof AuthenticatedRoomsIndexRoute
+  '/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
   '/rooms/$roomId': typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 export interface FileRoutesById {
@@ -68,13 +77,20 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/rooms/$roomId': typeof AuthenticatedRoomsRoomIdRouteWithChildren
   '/_authenticated/rooms/': typeof AuthenticatedRoomsIndexRoute
+  '/_authenticated/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
   '/_authenticated/rooms/$roomId/': typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/rooms/$roomId' | '/rooms/' | '/rooms/$roomId/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/rooms/$roomId'
+    | '/rooms/'
+    | '/rooms/$roomId/expenses'
+    | '/rooms/$roomId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/rooms' | '/rooms/$roomId'
+  to: '/' | '/auth' | '/rooms' | '/rooms/$roomId/expenses' | '/rooms/$roomId'
   id:
     | '__root__'
     | '/'
@@ -82,6 +98,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/rooms/$roomId'
     | '/_authenticated/rooms/'
+    | '/_authenticated/rooms/$roomId/expenses'
     | '/_authenticated/rooms/$roomId/'
   fileRoutesById: FileRoutesById
 }
@@ -135,15 +152,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRoomsRoomIdIndexRouteImport
       parentRoute: typeof AuthenticatedRoomsRoomIdRoute
     }
+    '/_authenticated/rooms/$roomId/expenses': {
+      id: '/_authenticated/rooms/$roomId/expenses'
+      path: '/expenses'
+      fullPath: '/rooms/$roomId/expenses'
+      preLoaderRoute: typeof AuthenticatedRoomsRoomIdExpensesRouteImport
+      parentRoute: typeof AuthenticatedRoomsRoomIdRoute
+    }
   }
 }
 
 interface AuthenticatedRoomsRoomIdRouteChildren {
+  AuthenticatedRoomsRoomIdExpensesRoute: typeof AuthenticatedRoomsRoomIdExpensesRoute
   AuthenticatedRoomsRoomIdIndexRoute: typeof AuthenticatedRoomsRoomIdIndexRoute
 }
 
 const AuthenticatedRoomsRoomIdRouteChildren: AuthenticatedRoomsRoomIdRouteChildren =
   {
+    AuthenticatedRoomsRoomIdExpensesRoute:
+      AuthenticatedRoomsRoomIdExpensesRoute,
     AuthenticatedRoomsRoomIdIndexRoute: AuthenticatedRoomsRoomIdIndexRoute,
   }
 
