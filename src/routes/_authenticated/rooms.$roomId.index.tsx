@@ -48,7 +48,7 @@ function RoomDashboard() {
   const recent = stats.filtered.slice(0, 5);
 
   return (
-    <div className="space-y-4 sm:space-y-5">
+    <div className="space-y-2.5 sm:space-y-5">
       <Tabs value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
         <TabsList className="w-full justify-between rounded-2xl">
           {periods.map((p) => (
@@ -59,10 +59,10 @@ function RoomDashboard() {
         </TabsList>
       </Tabs>
 
-      <Card className="animate-slide-up overflow-hidden rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
-        <CardContent className="p-4 sm:p-6">
+      <Card className="animate-slide-up overflow-hidden rounded-3xl sm:rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
+        <CardContent className="p-3.5 sm:p-6">
           <p className="text-sm/relaxed opacity-90">Mess wallet balance</p>
-          <p className="mt-1 font-[Outfit] text-3xl font-bold sm:text-4xl tabular-nums">
+          <p className="mt-1 font-[Outfit] text-2xl font-bold sm:text-4xl tabular-nums">
             {formatCurrency(stats.walletBalance, currency)}
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2.5 text-xs sm:mt-5 sm:gap-3 sm:text-sm">
@@ -82,7 +82,7 @@ function RoomDashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
         <StatCard icon={Receipt} label="Entries" value={String(stats.expenseCount)} delay={0} />
         <StatCard icon={Users} label="Members" value={String(members?.length ?? 0)} delay={60} />
         <StatCard icon={TrendingUp} label="Per head" value={formatCurrency(stats.perHead, currency)} delay={120} />
@@ -95,12 +95,12 @@ function RoomDashboard() {
       </div>
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        <Card className="animate-slide-up rounded-3xl">
-          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+        <Card className="animate-slide-up rounded-2xl sm:rounded-3xl">
+          <CardHeader className="p-3 pb-1.5 sm:p-6 sm:pb-3">
             <CardTitle className="font-[Outfit] text-sm sm:text-base">Spending trend</CardTitle>
             <CardDescription className="text-xs">Daily totals for the selected period</CardDescription>
           </CardHeader>
-          <CardContent className="h-52 px-3 sm:h-64 sm:px-6">
+          <CardContent className="h-44 px-1 sm:h-64 sm:px-6">
             {stats.byDay.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats.byDay} margin={{ left: -18, right: 8, top: 8 }}>
@@ -137,12 +137,12 @@ function RoomDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: "80ms" }}>
-          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+        <Card className="animate-slide-up rounded-2xl sm:rounded-3xl" style={{ animationDelay: "80ms" }}>
+          <CardHeader className="p-3 pb-1.5 sm:p-6 sm:pb-3">
             <CardTitle className="font-[Outfit] text-sm sm:text-base">By category</CardTitle>
             <CardDescription className="text-xs">Where the money went</CardDescription>
           </CardHeader>
-          <CardContent className="h-52 px-3 sm:h-64 sm:px-6">
+          <CardContent className="h-44 px-1 sm:h-64 sm:px-6">
             {stats.byCategory.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -150,8 +150,8 @@ function RoomDashboard() {
                     data={stats.byCategory}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius={54}
-                    outerRadius={88}
+                    innerRadius="52%"
+                    outerRadius="82%"
                     paddingAngle={2}
                     animationDuration={900}
                   >
@@ -176,12 +176,12 @@ function RoomDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: "160ms" }}>
-          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+        <Card className="animate-slide-up rounded-2xl sm:rounded-3xl" style={{ animationDelay: "160ms" }}>
+          <CardHeader className="p-3 pb-1.5 sm:p-6 sm:pb-3">
             <CardTitle className="font-[Outfit] text-sm sm:text-base">Paid by member</CardTitle>
             <CardDescription className="text-xs">Out-of-pocket spend per person</CardDescription>
           </CardHeader>
-          <CardContent className="h-52 px-3 sm:h-64 sm:px-6">
+          <CardContent className="h-44 px-1 sm:h-64 sm:px-6">
             {stats.balances.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.balances} margin={{ left: -18, right: 8, top: 8 }}>
@@ -206,12 +206,12 @@ function RoomDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: "240ms" }}>
-          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-3">
+        <Card className="animate-slide-up rounded-2xl sm:rounded-3xl" style={{ animationDelay: "240ms" }}>
+          <CardHeader className="p-3 pb-1.5 sm:p-6 sm:pb-3">
             <CardTitle className="font-[Outfit] text-sm sm:text-base">Settle up</CardTitle>
             <CardDescription className="text-xs">Fewest transfers to square the period</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2 p-4 pt-0 sm:p-6 sm:pt-0">
+          <CardContent className="space-y-1.5 p-3 pt-0 sm:p-6 sm:pt-0">
             {stats.transfers.length ? (
               stats.transfers.map((t) => (
                 <div
@@ -233,7 +233,7 @@ function RoomDashboard() {
         </Card>
       </div>
 
-      <Card className="animate-slide-up rounded-3xl">
+      <Card className="animate-slide-up rounded-2xl sm:rounded-3xl">
         <CardHeader className="flex-row items-center justify-between space-y-0 p-4 pb-2 sm:p-6 sm:pb-3">
           <div>
             <CardTitle className="font-[Outfit] text-sm sm:text-base">Recent expenses</CardTitle>
@@ -245,7 +245,7 @@ function RoomDashboard() {
             </Link>
           </Button>
         </CardHeader>
-        <CardContent className="space-y-2 p-4 pt-0 sm:p-6 sm:pt-0">
+        <CardContent className="space-y-1.5 p-3 pt-0 sm:p-6 sm:pt-0">
           {recent.length ? (
             recent.map((e) => (
               <div key={e.id} className="flex items-center justify-between gap-3 rounded-2xl bg-surface px-3 py-2.5 sm:px-4 sm:py-3">
@@ -281,8 +281,8 @@ function StatCard({
   delay: number;
 }) {
   return (
-    <Card className="animate-slide-up rounded-3xl" style={{ animationDelay: `${delay}ms` }}>
-      <CardContent className="p-3 sm:p-4">
+    <Card className="animate-slide-up rounded-2xl sm:rounded-3xl" style={{ animationDelay: `${delay}ms` }}>
+      <CardContent className="p-2.5 sm:p-4">
         <div className="mb-1.5 inline-flex size-8 sm:mb-2 sm:size-9 items-center justify-center rounded-xl bg-primary-container text-primary-container-foreground">
           <Icon className="size-4" />
         </div>

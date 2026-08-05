@@ -37,6 +37,7 @@ import {
   useExpenses,
   useMembers,
   useRoom,
+  useRoomRole,
   useSaveExpense,
   type Expense,
 } from "@/hooks/use-mess";
@@ -59,13 +60,17 @@ type ExpenseForm = z.input<typeof expenseSchema>;
 
 function ExpensesPage() {
   const { roomId } = Route.useParams();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { data: room } = useRoom(roomId);
   const { data: expenses, isLoading } = useExpenses(roomId);
   const { data: categories } = useCategories(roomId);
   const { data: members } = useMembers(roomId);
+  const { canManage } = useRoomRole(roomId, user?.id, isSuperAdmin);
   const saveExpense = useSaveExpense(roomId);
   const deleteExpense = useDeleteExpense(roomId);
+
+  const canEdit = (e: Expense) => canManage || e.created_by === user?.id;
+
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -142,6 +147,8 @@ function ExpensesPage() {
   async function onSubmit(raw: ExpenseForm) {
     if (!user) return;
     const values = expenseSchema.parse(raw);
+    // Plain members can only log what they paid for themselves.
+    if (!canManage) values.paid_by = user.id;
     try {
       await saveExpense.mutateAsync({
         ...(editing ? { id: editing.id } : {}),
@@ -176,21 +183,21 @@ function ExpensesPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="space-y-2.5 sm:space-y-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search title, note or payer"
-            className="rounded-2xl pl-9"
+            placeholder="Search expenses"
+            className="h-9 rounded-2xl pl-9 text-sm"
             maxLength={80}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex">
           <Select value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
-            <SelectTrigger className="w-32 rounded-2xl">
+            <SelectTrigger className="h-9 rounded-2xl text-xs sm:w-32 sm:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -202,7 +209,7 @@ function ExpensesPage() {
             </SelectContent>
           </Select>
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-40 rounded-2xl">
+            <SelectTrigger className="h-9 rounded-2xl text-xs sm:w-40 sm:text-sm">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -217,73 +224,86 @@ function ExpensesPage() {
         </div>
       </div>
 
-      <Card className="rounded-3xl">
-        <CardContent className="flex items-center justify-between p-4">
-          <div>
-            <p className="text-xs text-muted-foreground">{visible.length} entries</p>
-            <p className="font-[Outfit] text-xl font-semibold tabular-nums">{formatCurrency(total, currency)}</p>
+      <Card className="rounded-2xl sm:rounded-3xl">
+        <CardContent className="flex items-center justify-between gap-3 p-3 sm:p-4">
+          <div className="min-w-0">
+            <p className="text-[11px] text-muted-foreground">{visible.length} entries</p>
+            <p className="truncate font-[Outfit] text-lg font-semibold tabular-nums sm:text-xl">
+              {formatCurrency(total, currency)}
+            </p>
           </div>
-          <Button onClick={openCreate} className="rounded-full">
-            <Plus className="mr-1 size-4" /> Add expense
+          <Button onClick={openCreate} size="sm" className="shrink-0 rounded-full">
+            <Plus className="mr-1 size-4" /> Add
           </Button>
         </CardContent>
       </Card>
 
-      <div className="space-y-2 pb-4">
+      <div className="space-y-1.5 pb-4 sm:space-y-2">
         {isLoading ? (
           <p className="py-10 text-center text-sm text-muted-foreground">Loading expenses…</p>
         ) : visible.length ? (
           visible.map((e, i) => {
             const cat = e.category_id ? categoryById.get(e.category_id) : undefined;
+            const mine = canEdit(e);
             return (
               <Card
                 key={e.id}
-                className="animate-slide-up rounded-3xl"
+                className="animate-slide-up rounded-2xl sm:rounded-3xl"
                 style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
               >
-                <CardContent className="flex items-center gap-3 p-4">
+                <CardContent className="flex items-center gap-2 p-2.5 sm:gap-3 sm:p-4">
                   <span
-                    className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold text-white"
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-semibold text-white sm:size-10 sm:rounded-2xl sm:text-sm"
                     style={{ backgroundColor: cat?.color ?? "#64748b" }}
                     aria-hidden="true"
                   >
                     {(cat?.name ?? "?").slice(0, 1)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{e.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate text-[13px] font-medium sm:text-sm">{e.title}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">
                       {formatDate(e.spent_at)} · {memberName.get(e.paid_by) ?? "Member"}
                       {cat ? ` · ${cat.name}` : ""}
                     </p>
                   </div>
-                  <span className="shrink-0 text-sm font-semibold tabular-nums">
+                  <span className="shrink-0 text-[13px] font-semibold tabular-nums sm:text-sm">
                     {formatCurrency(Number(e.amount), currency)}
                   </span>
-                  <Button variant="ghost" size="icon" className="rounded-full" onClick={() => openEdit(e)}>
-                    <Pencil className="size-4" />
-                    <span className="sr-only">Edit</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full text-destructive"
-                    onClick={() => setPendingDelete(e)}
-                  >
-                    <Trash2 className="size-4" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
+                  {mine ? (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 shrink-0 rounded-full"
+                        onClick={() => openEdit(e)}
+                      >
+                        <Pencil className="size-4" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 shrink-0 rounded-full text-destructive"
+                        onClick={() => setPendingDelete(e)}
+                      >
+                        <Trash2 className="size-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </>
+                  ) : null}
                 </CardContent>
               </Card>
             );
           })
         ) : (
-          <Card className="rounded-3xl border-dashed">
-            <CardContent className="p-10 text-center text-sm text-muted-foreground">
+          <Card className="rounded-2xl border-dashed sm:rounded-3xl">
+            <CardContent className="p-8 text-center text-sm text-muted-foreground">
               No expenses match these filters.
             </CardContent>
           </Card>
         )}
       </div>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl">
@@ -364,24 +384,36 @@ function ExpensesPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Paid by</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={canManage ? field.value : (user?.id ?? "")}
+                      disabled={!canManage}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select member" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {(members ?? []).map((m) => (
-                          <SelectItem key={m.user_id} value={m.user_id}>
-                            {m.name}
-                          </SelectItem>
-                        ))}
+                        {(members ?? [])
+                          .filter((m) => canManage || m.user_id === user?.id)
+                          .map((m) => (
+                            <SelectItem key={m.user_id} value={m.user_id}>
+                              {m.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
+                    {!canManage ? (
+                      <p className="text-xs text-muted-foreground">
+                        Only owners and admins can log an expense paid by someone else.
+                      </p>
+                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="notes"
@@ -424,7 +456,7 @@ function ExpensesPage() {
       <Button
         onClick={openCreate}
         size="icon"
-        className="fixed bottom-24 right-5 z-40 size-14 rounded-2xl elevation-3 md:hidden"
+        className="fixed bottom-20 right-4 z-40 size-12 rounded-2xl elevation-2 md:hidden"
         aria-label="Add expense"
       >
         <Plus className="size-6" />
