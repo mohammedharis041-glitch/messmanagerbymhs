@@ -37,6 +37,7 @@ import {
   useExpenses,
   useMembers,
   useRoom,
+  useRoomRole,
   useSaveExpense,
   type Expense,
 } from "@/hooks/use-mess";
