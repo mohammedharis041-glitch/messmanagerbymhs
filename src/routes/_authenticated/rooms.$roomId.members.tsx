@@ -30,7 +30,7 @@ import {
   type RoomRole,
 } from "@/hooks/use-mess";
 import { useRoomStats } from "@/hooks/use-room-stats";
-import { formatCurrency, initials } from "@/lib/format";
+import { formatCurrency, formatDate, initials } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/rooms/$roomId/members")({
   component: MembersPage,
@@ -90,6 +90,18 @@ function MembersPage() {
       toast.success("Contribution updated");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not update contribution");
+    }
+  }
+
+  async function saveLeftAt(member: MemberWithProfile, value: string) {
+    try {
+      await updateMember.mutateAsync({
+        id: member.id,
+        patch: { left_at: value ? value : null } as Partial<MemberWithProfile>,
+      });
+      toast.success(value ? "Leaving date saved" : "Leaving date cleared");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update the leaving date");
     }
   }
 
