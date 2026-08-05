@@ -1,5 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, LayoutDashboard, LogOut, Moon, Receipt, Settings, Sun, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Contrast,
+  LayoutDashboard,
+  LogOut,
+  Moon,
+  Receipt,
+  Settings,
+  Sun,
+  Users,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/auth-provider";
