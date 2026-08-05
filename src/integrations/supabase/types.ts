@@ -147,6 +147,7 @@ export type Database = {
           display_name: string | null
           id: string
           joined_at: string
+          left_at: string | null
           monthly_contribution: number
           role: Database["public"]["Enums"]["room_role"]
           room_id: string
@@ -156,6 +157,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           joined_at?: string
+          left_at?: string | null
           monthly_contribution?: number
           role?: Database["public"]["Enums"]["room_role"]
           room_id: string
@@ -165,6 +167,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           joined_at?: string
+          left_at?: string | null
           monthly_contribution?: number
           role?: Database["public"]["Enums"]["room_role"]
           room_id?: string
