@@ -384,24 +384,36 @@ function ExpensesPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Paid by</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={canManage ? field.value : (user?.id ?? "")}
+                      disabled={!canManage}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select member" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {(members ?? []).map((m) => (
-                          <SelectItem key={m.user_id} value={m.user_id}>
-                            {m.name}
-                          </SelectItem>
-                        ))}
+                        {(members ?? [])
+                          .filter((m) => canManage || m.user_id === user?.id)
+                          .map((m) => (
+                            <SelectItem key={m.user_id} value={m.user_id}>
+                              {m.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
+                    {!canManage ? (
+                      <p className="text-xs text-muted-foreground">
+                        Only owners and admins can log an expense paid by someone else.
+                      </p>
+                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="notes"
