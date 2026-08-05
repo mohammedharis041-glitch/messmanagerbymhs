@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "amoled";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -15,6 +15,7 @@ const ThemeContext = createContext<ThemeContextValue>({
 });
 
 const STORAGE_KEY = "mmp-theme";
+const ORDER: Theme[] = ["light", "dark", "amoled"];
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
@@ -22,12 +23,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setThemeState(stored ?? (prefersDark ? "dark" : "light"));
+    setThemeState(stored && ORDER.includes(stored) ? stored : prefersDark ? "dark" : "light");
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.style.colorScheme = theme;
+    const root = document.documentElement;
+    root.classList.toggle("dark", theme === "dark" || theme === "amoled");
+    root.classList.toggle("amoled", theme === "amoled");
+    root.style.colorScheme = theme === "light" ? "light" : "dark";
   }, [theme]);
 
   const setTheme = useCallback((next: Theme) => {
@@ -36,7 +39,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ theme, setTheme, toggleTheme: () => setTheme(theme === "dark" ? "light" : "dark") }),
+    () => ({
+      theme,
+      setTheme,
+      toggleTheme: () => setTheme(ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length]!),
+    }),
     [theme, setTheme],
   );
 

@@ -4,6 +4,8 @@ export type MemberBalance = {
   paid: number;
   contributed: number;
   share: number;
+  /** Number of days in the period the member was part of the mess. */
+  days: number;
   balance: number;
 };
 

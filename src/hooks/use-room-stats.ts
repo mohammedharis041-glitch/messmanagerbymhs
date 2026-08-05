@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import type { Category, Expense, MemberWithProfile } from "@/hooks/use-mess";
 import { settle, type MemberBalance, type Transfer } from "@/lib/settlement";
-import { periodRange, type PeriodKey } from "@/lib/format";
+import { periodRange, toISODate, type PeriodKey } from "@/lib/format";
 
 export type RoomStats = {
   totalExpense: number;
@@ -16,6 +16,22 @@ export type RoomStats = {
   transfers: Transfer[];
   filtered: Expense[];
 };
+
+/** The day a member started counting towards the mess (YYYY-MM-DD). */
+export function memberStartDay(member: MemberWithProfile) {
+  return toISODate(new Date(member.joined_at));
+}
+
+/** The last day a member counts, or null when they are still in the mess. */
+export function memberEndDay(member: MemberWithProfile) {
+  const left = (member as { left_at?: string | null }).left_at;
+  return left ? left.slice(0, 10) : null;
+}
+
+function isActiveOn(member: MemberWithProfile, day: string) {
+  const end = memberEndDay(member);
+  return memberStartDay(member) <= day && (end === null || day <= end);
+}
 
 export function useRoomStats({
   expenses,
@@ -37,7 +53,6 @@ export function useRoomStats({
 
     const totalExpense = list.reduce((sum, e) => sum + Number(e.amount), 0);
     const totalContribution = roster.reduce((sum, m) => sum + Number(m.monthly_contribution ?? 0), 0);
-    const perHead = roster.length ? totalExpense / roster.length : 0;
 
     const catMap = new Map((categories ?? []).map((c) => [c.id, c]));
     const catTotals = new Map<string, number>();
@@ -69,24 +84,42 @@ export function useRoomStats({
       paidBy.set(e.paid_by, (paidBy.get(e.paid_by) ?? 0) + Number(e.amount));
     }
 
+    // Day-based fair share: every day's spend is split only between the members
+    // who were actually in the mess that day (pro-rata joining / leaving).
+    const shareByUser = new Map<string, number>();
+    const daysByUser = new Map<string, number>();
+    for (const [day, amount] of dayTotals) {
+      const active = roster.filter((m) => isActiveOn(m, day));
+      const pool = active.length ? active : roster;
+      if (!pool.length) continue;
+      const each = amount / pool.length;
+      for (const m of pool) {
+        shareByUser.set(m.user_id, (shareByUser.get(m.user_id) ?? 0) + each);
+        daysByUser.set(m.user_id, (daysByUser.get(m.user_id) ?? 0) + 1);
+      }
+    }
+
     const balances: MemberBalance[] = roster.map((m) => {
       const paid = paidBy.get(m.user_id) ?? 0;
-      const contributed = Number(m.monthly_contribution ?? 0);
+      const share = Math.round((shareByUser.get(m.user_id) ?? 0) * 100) / 100;
       return {
         userId: m.user_id,
         name: m.name,
         paid,
-        contributed,
-        share: perHead,
-        balance: Math.round((paid - perHead) * 100) / 100,
+        contributed: Number(m.monthly_contribution ?? 0),
+        share,
+        days: daysByUser.get(m.user_id) ?? 0,
+        balance: Math.round((paid - share) * 100) / 100,
       };
     });
+
+    const activeCount = balances.filter((b) => b.days > 0).length || roster.length;
 
     return {
       totalExpense,
       totalContribution,
       walletBalance: totalContribution - totalExpense,
-      perHead,
+      perHead: activeCount ? totalExpense / activeCount : 0,
       expenseCount: list.length,
       byCategory,
       byDay,
