@@ -266,3 +266,11 @@ export function useCreateCategory(roomId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: roomKeys.categories(roomId) }),
   });
 }
+
+/** Role of the signed-in user inside a room, plus derived permissions. */
+export function useRoomRole(roomId: string, userId: string | undefined, isSuperAdmin = false) {
+  const { data: members } = useMembers(roomId);
+  const role = ((members ?? []).find((m) => m.user_id === userId)?.role ?? "member") as RoomRole;
+  const canManage = isSuperAdmin || role === "owner" || role === "admin";
+  return { role, canManage, isOwner: isSuperAdmin || role === "owner" };
+}
