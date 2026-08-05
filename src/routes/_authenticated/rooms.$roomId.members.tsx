@@ -115,58 +115,71 @@ function MembersPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <Card className="animate-slide-up rounded-3xl">
-        <CardHeader>
-          <CardTitle className="font-[Outfit] text-base">Invite people</CardTitle>
-          <CardDescription>Share this code — anyone with it can join this room.</CardDescription>
+    <div className="space-y-2.5 sm:space-y-4">
+      <Card className="animate-slide-up rounded-2xl sm:rounded-3xl">
+        <CardHeader className="p-3 pb-2 sm:p-6 sm:pb-3">
+          <CardTitle className="font-[Outfit] text-sm sm:text-base">Invite people</CardTitle>
+          <CardDescription className="text-xs">Share this code to let someone join.</CardDescription>
         </CardHeader>
-        <CardContent className="flex items-center gap-3">
-          <code className="flex-1 rounded-2xl bg-surface px-3 py-2.5 text-center font-[Outfit] text-lg font-semibold tracking-[0.25em] sm:px-4 sm:py-3 sm:text-2xl sm:tracking-[0.35em]">
+        <CardContent className="flex items-center gap-2 p-3 pt-0 sm:gap-3 sm:p-6 sm:pt-0">
+          <code className="flex-1 rounded-2xl bg-surface px-2 py-2 text-center font-[Outfit] text-base font-semibold tracking-[0.2em] sm:px-4 sm:py-3 sm:text-2xl sm:tracking-[0.35em]">
             {room?.invite_code ?? "······"}
           </code>
-          <Button onClick={() => void copyInvite()} variant="outline" className="rounded-2xl">
+          <Button onClick={() => void copyInvite()} size="sm" variant="outline" className="rounded-2xl">
             {copied ? <Check className="mr-1 size-4" /> : <Copy className="mr-1 size-4" />}
             {copied ? "Copied" : "Copy"}
           </Button>
         </CardContent>
       </Card>
 
-      <div className="space-y-2 pb-4">
+      {!canManage ? (
+        <p className="px-1 text-[11px] text-muted-foreground">
+          Only owners and admins can change roles, contributions or membership dates.
+        </p>
+      ) : null}
+
+      <div className="space-y-1.5 pb-4 sm:space-y-2">
         {(members ?? []).map((m, i) => {
           const Icon = roleIcon[m.role as RoomRole] ?? User;
           const balance = balanceByUser.get(m.user_id);
           const draft = drafts[m.id];
+          const leftAt = (m as { left_at?: string | null }).left_at ?? null;
           return (
             <Card
               key={m.id}
-              className="animate-slide-up rounded-3xl"
+              className="animate-slide-up rounded-2xl sm:rounded-3xl"
               style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
             >
-              <CardContent className="space-y-3 p-4">
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-11 border border-border">
+              <CardContent className="space-y-2.5 p-3 sm:space-y-3 sm:p-4">
+                <div className="flex items-center gap-2.5">
+                  <Avatar className="size-9 border border-border sm:size-11">
                     <AvatarImage src={m.profile?.avatar_url ?? undefined} alt="" />
                     <AvatarFallback className="bg-primary-container text-primary-container-foreground">
                       {initials(m.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
+                    <p className="truncate text-[13px] font-medium sm:text-sm">
                       {m.name}
                       {m.user_id === user?.id ? <span className="text-muted-foreground"> (you)</span> : null}
                     </p>
-                    <p className="truncate text-xs text-muted-foreground">{m.profile?.email ?? "No email on file"}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      Joined {formatDate(m.joined_at)}
+                      {leftAt ? ` · left ${formatDate(leftAt)}` : ""}
+                    </p>
                   </div>
-                  <Badge variant="secondary" className="shrink-0 rounded-full capitalize">
+                  <Badge variant="secondary" className="shrink-0 rounded-full text-[10px] capitalize">
                     <Icon className="mr-1 size-3" />
                     {m.role}
                   </Badge>
                 </div>
 
-                <div className="grid gap-2 text-xs sm:grid-cols-3">
-                  <Stat label="Paid this month" value={formatCurrency(balance?.paid ?? 0, currency)} />
-                  <Stat label="Fair share" value={formatCurrency(balance?.share ?? 0, currency)} />
+                <div className="grid grid-cols-3 gap-1.5 text-xs">
+                  <Stat label="Paid" value={formatCurrency(balance?.paid ?? 0, currency)} />
+                  <Stat
+                    label={`Share · ${balance?.days ?? 0}d`}
+                    value={formatCurrency(balance?.share ?? 0, currency)}
+                  />
                   <Stat
                     label="Net"
                     value={formatCurrency(balance?.balance ?? 0, currency)}
@@ -175,28 +188,38 @@ function MembersPage() {
                 </div>
 
                 {canManage ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex flex-1 items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <div className="flex items-center gap-1.5">
                       <Input
                         type="number"
                         min="0"
                         step="0.01"
                         inputMode="decimal"
-                        className="h-9 w-32 rounded-xl"
+                        className="h-8 w-24 rounded-xl text-xs"
                         value={draft ?? String(m.monthly_contribution ?? 0)}
                         onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: e.target.value }))}
                         aria-label={`Monthly contribution for ${m.name}`}
                       />
-                      <span className="text-xs text-muted-foreground">monthly contribution</span>
+                      <span className="text-[11px] text-muted-foreground">contribution</span>
                       {draft !== undefined ? (
-                        <Button size="sm" className="h-9 rounded-xl" onClick={() => void saveContribution(m)}>
+                        <Button size="sm" className="h-8 rounded-xl text-xs" onClick={() => void saveContribution(m)}>
                           Save
                         </Button>
                       ) : null}
                     </div>
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        type="date"
+                        className="h-8 w-[9.5rem] rounded-xl text-xs"
+                        value={leftAt ?? ""}
+                        onChange={(e) => void saveLeftAt(m, e.target.value)}
+                        aria-label={`Left date for ${m.name}`}
+                      />
+                      <span className="text-[11px] text-muted-foreground">left on</span>
+                    </div>
                     {isOwner && m.role !== "owner" ? (
                       <Select value={m.role} onValueChange={(v) => void changeRole(m, v as RoomRole)}>
-                        <SelectTrigger className="h-9 w-28 rounded-xl">
+                        <SelectTrigger className="h-8 w-24 rounded-xl text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -209,7 +232,7 @@ function MembersPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-full text-destructive"
+                        className="size-8 rounded-full text-destructive"
                         onClick={() => setPendingRemove(m)}
                         aria-label={`Remove ${m.name}`}
                       >
@@ -223,6 +246,7 @@ function MembersPage() {
           );
         })}
       </div>
+
 
       <AlertDialog open={pendingRemove !== null} onOpenChange={(o) => !o && setPendingRemove(null)}>
         <AlertDialogContent className="rounded-3xl">
