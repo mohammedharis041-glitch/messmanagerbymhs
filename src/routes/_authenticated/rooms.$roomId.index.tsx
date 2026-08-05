@@ -59,10 +59,10 @@ function RoomDashboard() {
         </TabsList>
       </Tabs>
 
-      <Card className="animate-slide-up overflow-hidden rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
-        <CardContent className="p-4 sm:p-6">
+      <Card className="animate-slide-up overflow-hidden rounded-3xl sm:rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
+        <CardContent className="p-3.5 sm:p-6">
           <p className="text-sm/relaxed opacity-90">Mess wallet balance</p>
-          <p className="mt-1 font-[Outfit] text-3xl font-bold sm:text-4xl tabular-nums">
+          <p className="mt-1 font-[Outfit] text-2xl font-bold sm:text-4xl tabular-nums">
             {formatCurrency(stats.walletBalance, currency)}
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2.5 text-xs sm:mt-5 sm:gap-3 sm:text-sm">
@@ -82,7 +82,7 @@ function RoomDashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
         <StatCard icon={Receipt} label="Entries" value={String(stats.expenseCount)} delay={0} />
         <StatCard icon={Users} label="Members" value={String(members?.length ?? 0)} delay={60} />
         <StatCard icon={TrendingUp} label="Per head" value={formatCurrency(stats.perHead, currency)} delay={120} />
@@ -150,8 +150,8 @@ function RoomDashboard() {
                     data={stats.byCategory}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius={54}
-                    outerRadius={88}
+                    innerRadius="52%"
+                    outerRadius="82%"
                     paddingAngle={2}
                     animationDuration={900}
                   >
@@ -282,7 +282,7 @@ function StatCard({
 }) {
   return (
     <Card className="animate-slide-up rounded-2xl sm:rounded-3xl" style={{ animationDelay: `${delay}ms` }}>
-      <CardContent className="p-3 sm:p-4">
+      <CardContent className="p-2.5 sm:p-4">
         <div className="mb-1.5 inline-flex size-8 sm:mb-2 sm:size-9 items-center justify-center rounded-xl bg-primary-container text-primary-container-foreground">
           <Icon className="size-4" />
         </div>
