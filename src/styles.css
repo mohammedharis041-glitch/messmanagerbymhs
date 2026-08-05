@@ -233,6 +233,42 @@
   --gradient-surface: linear-gradient(160deg, oklch(0.26 0.025 195 / 0.9), oklch(0.21 0.02 195 / 0.6));
 }
 
+.amoled {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.95 0.008 180);
+  --surface: oklch(0.13 0.012 195);
+  --surface-foreground: oklch(0.95 0.008 180);
+  --surface-variant: oklch(0.17 0.015 192);
+  --surface-variant-foreground: oklch(0.84 0.015 180);
+  --card: oklch(0.11 0.01 195);
+  --card-foreground: oklch(0.95 0.008 180);
+  --popover: oklch(0.12 0.012 195);
+  --popover-foreground: oklch(0.95 0.008 180);
+
+  --primary: oklch(0.82 0.12 180);
+  --primary-foreground: oklch(0.12 0.02 195);
+  --primary-container: oklch(0.24 0.05 190);
+  --primary-container-foreground: oklch(0.92 0.05 182);
+
+  --secondary: oklch(0.18 0.02 192);
+  --secondary-foreground: oklch(0.9 0.02 180);
+  --muted: oklch(0.16 0.015 192);
+  --muted-foreground: oklch(0.68 0.02 185);
+  --accent: oklch(0.2 0.03 190);
+  --accent-foreground: oklch(0.92 0.03 182);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+
+  --sidebar: oklch(0.06 0.008 195);
+  --sidebar-border: oklch(1 0 0 / 10%);
+
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.8), 0 10px 28px oklch(0 0 0 / 0.6);
+  --shadow-raised: 0 2px 6px oklch(0 0 0 / 0.9), 0 18px 44px oklch(0 0 0 / 0.7);
+  --gradient-primary: linear-gradient(135deg, oklch(0.42 0.09 187), oklch(0.3 0.07 172));
+  --gradient-surface: linear-gradient(160deg, oklch(0.1 0.012 195 / 0.92), oklch(0 0 0 / 0.7));
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -240,6 +276,13 @@
 
   html {
     -webkit-tap-highlight-color: transparent;
+    font-size: 15px;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      font-size: 16px;
+    }
   }
 
   body {
