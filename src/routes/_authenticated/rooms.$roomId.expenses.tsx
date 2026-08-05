@@ -60,13 +60,17 @@ type ExpenseForm = z.input<typeof expenseSchema>;
 
 function ExpensesPage() {
   const { roomId } = Route.useParams();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { data: room } = useRoom(roomId);
   const { data: expenses, isLoading } = useExpenses(roomId);
   const { data: categories } = useCategories(roomId);
   const { data: members } = useMembers(roomId);
+  const { canManage } = useRoomRole(roomId, user?.id, isSuperAdmin);
   const saveExpense = useSaveExpense(roomId);
   const deleteExpense = useDeleteExpense(roomId);
+
+  const canEdit = (e: Expense) => canManage || e.created_by === user?.id;
+
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
