@@ -147,6 +147,8 @@ function ExpensesPage() {
   async function onSubmit(raw: ExpenseForm) {
     if (!user) return;
     const values = expenseSchema.parse(raw);
+    // Plain members can only log what they paid for themselves.
+    if (!canManage) values.paid_by = user.id;
     try {
       await saveExpense.mutateAsync({
         ...(editing ? { id: editing.id } : {}),
