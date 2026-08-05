@@ -456,7 +456,7 @@ function ExpensesPage() {
       <Button
         onClick={openCreate}
         size="icon"
-        className="fixed bottom-24 right-5 z-40 size-14 rounded-2xl elevation-3 md:hidden"
+        className="fixed bottom-20 right-4 z-40 size-12 rounded-2xl elevation-2 md:hidden"
         aria-label="Add expense"
       >
         <Plus className="size-6" />
