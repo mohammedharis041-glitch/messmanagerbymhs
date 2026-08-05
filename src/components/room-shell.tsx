@@ -56,20 +56,32 @@ export function RoomShell({
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <header className="safe-top sticky top-0 z-30 border-b border-border/70 glass-panel">
-        <div className="mx-auto flex max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3">
-          <Button asChild variant="ghost" size="icon" className="rounded-full">
+        <div className="mx-auto flex max-w-5xl items-center gap-1 px-2 py-1.5 sm:gap-3 sm:px-4 sm:py-3">
+          <Button asChild variant="ghost" size="icon" className="size-9 rounded-full">
             <Link to="/rooms" aria-label="All rooms">
-              <ArrowLeft className="size-5" />
+              <ArrowLeft className="size-[18px]" />
             </Link>
           </Button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-[Outfit] text-base font-semibold text-foreground">{title}</h1>
-            {subtitle ? <p className="truncate text-xs text-muted-foreground">{subtitle}</p> : null}
+            <h1 className="truncate font-[Outfit] text-sm font-semibold text-foreground sm:text-base">{title}</h1>
+            {subtitle ? <p className="truncate text-[11px] text-muted-foreground sm:text-xs">{subtitle}</p> : null}
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleTheme} aria-label="Toggle theme">
-            {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9 rounded-full"
+            onClick={toggleTheme}
+            aria-label={`Theme: ${theme}. Switch theme`}
+          >
+            {theme === "light" ? (
+              <Moon className="size-[18px]" />
+            ) : theme === "dark" ? (
+              <Contrast className="size-[18px]" />
+            ) : (
+              <Sun className="size-[18px]" />
+            )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
