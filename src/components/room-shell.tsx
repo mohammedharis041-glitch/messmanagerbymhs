@@ -133,12 +133,12 @@ export function RoomShell({
         </nav>
       </header>
 
-      <main key={pathname} className="animate-page mx-auto w-full max-w-5xl px-3 py-4 sm:px-4 sm:py-5">
+      <main key={pathname} className="animate-page mx-auto w-full max-w-5xl px-2.5 py-3 sm:px-4 sm:py-5">
         {children}
       </main>
 
       <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border/70 glass-panel md:hidden">
-        <div className="mx-auto flex max-w-lg items-stretch justify-around px-2 py-1.5">
+        <div className="mx-auto flex max-w-lg items-stretch justify-around px-1 py-1">
           {tabs.map((tab) => {
             const active = isActive(tab.to, tab.exact);
             return (
@@ -146,27 +146,28 @@ export function RoomShell({
                 key={tab.label}
                 to={tab.to}
                 params={{ roomId }}
-                className="group relative flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5"
+                className="group relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-1 py-1"
               >
                 <span
                   className={cn(
-                    "flex h-7 w-14 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.05,0.7,0.1,1)]",
+                    "flex h-6 w-12 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.05,0.7,0.1,1)]",
                     active
                       ? "scale-[1.12] bg-primary-container text-primary-container-foreground"
                       : "scale-100 text-muted-foreground",
                   )}
                 >
-                  <tab.icon className="size-5" />
+                  <tab.icon className="size-[18px]" />
                 </span>
                 <span
                   className={cn(
-                    "text-[11px] font-medium transition-opacity duration-200",
+                    "text-[10px] font-medium transition-opacity duration-200",
                     active ? "text-foreground opacity-100" : "text-muted-foreground opacity-70",
                   )}
                 >
                   {tab.label}
                 </span>
               </Link>
+
             );
           })}
         </div>
