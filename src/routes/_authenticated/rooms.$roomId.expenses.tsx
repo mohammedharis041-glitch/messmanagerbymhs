@@ -486,6 +486,58 @@ function ExpensesPage() {
 
               <FormField
                 control={form.control}
+                name="participants"
+                render={({ field }) => {
+                  const selected = new Set(field.value ?? []);
+                  const allIds = eligible.map((m) => m.user_id);
+                  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
+                  return (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Members included</FormLabel>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-primary"
+                          onClick={() => field.onChange(allSelected ? [] : allIds)}
+                        >
+                          {allSelected ? "Clear all" : "Select all"}
+                        </button>
+                      </div>
+                      <div className="grid max-h-44 grid-cols-1 gap-1 overflow-y-auto rounded-2xl border border-border p-2 sm:grid-cols-2">
+                        {eligible.length ? (
+                          eligible.map((m) => (
+                            <label
+                              key={m.user_id}
+                              className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm hover:bg-accent"
+                            >
+                              <Checkbox
+                                checked={selected.has(m.user_id)}
+                                onCheckedChange={(checked) => {
+                                  const next = new Set(selected);
+                                  if (checked) next.add(m.user_id);
+                                  else next.delete(m.user_id);
+                                  field.onChange([...next]);
+                                }}
+                              />
+                              <span className="truncate">{m.name}</span>
+                            </label>
+                          ))
+                        ) : (
+                          <p className="px-2 py-1.5 text-xs text-muted-foreground">
+                            This group has no members yet.
+                          </p>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+
+
+              <FormField
+                control={form.control}
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
