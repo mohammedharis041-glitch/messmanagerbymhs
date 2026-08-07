@@ -41,6 +41,8 @@ import {
   useSaveExpense,
   type Expense,
 } from "@/hooks/use-mess";
+import { useExpenseParticipants, useGroupMembers, useGroups } from "@/hooks/use-groups";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, formatDate, periodRange, toISODate, type PeriodKey } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/rooms/$roomId/expenses")({
@@ -52,7 +54,9 @@ const expenseSchema = z.object({
   amount: z.coerce.number().positive("Enter an amount above zero").max(1_000_000),
   spent_at: z.string().min(8, "Pick a date"),
   category_id: z.string().min(1, "Pick a category"),
+  group_id: z.string().min(1, "Pick an expense group"),
   paid_by: z.string().min(1, "Who paid?"),
+  participants: z.array(z.string()).min(1, "Select at least one member"),
   notes: z.string().trim().max(500).optional(),
 });
 
@@ -65,6 +69,9 @@ function ExpensesPage() {
   const { data: expenses, isLoading } = useExpenses(roomId);
   const { data: categories } = useCategories(roomId);
   const { data: members } = useMembers(roomId);
+  const { data: groups } = useGroups(roomId);
+  const { data: groupMembers } = useGroupMembers(roomId);
+  const { data: participantMap } = useExpenseParticipants(roomId);
   const { canManage } = useRoomRole(roomId, user?.id, isSuperAdmin);
   const saveExpense = useSaveExpense(roomId);
   const deleteExpense = useDeleteExpense(roomId);
@@ -74,6 +81,7 @@ function ExpensesPage() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [group, setGroup] = useState("all");
   const [period, setPeriod] = useState<PeriodKey>("month");
   const [editing, setEditing] = useState<Expense | null>(null);
   const [open, setOpen] = useState(false);
@@ -88,6 +96,16 @@ function ExpensesPage() {
     () => new Map((categories ?? []).map((c) => [c.id, c])),
     [categories],
   );
+  const groupById = useMemo(() => new Map((groups ?? []).map((g) => [g.id, g])), [groups]);
+  const membersOfGroup = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const row of groupMembers ?? []) {
+      const list = map.get(row.group_id) ?? [];
+      list.push(row.user_id);
+      map.set(row.group_id, list);
+    }
+    return map;
+  }, [groupMembers]);
 
   const form = useForm<ExpenseForm>({
     resolver: zodResolver(expenseSchema),
@@ -96,10 +114,21 @@ function ExpensesPage() {
       amount: "" as unknown as number,
       spent_at: toISODate(new Date()),
       category_id: "",
+      group_id: "",
       paid_by: user?.id ?? "",
+      participants: [],
       notes: "",
     },
   });
+
+  const selectedGroupId = form.watch("group_id");
+  const eligible = useMemo(() => {
+    const ids = membersOfGroup.get(selectedGroupId ?? "");
+    if (!ids?.length) return members ?? [];
+    const set = new Set(ids);
+    return (members ?? []).filter((m) => set.has(m.user_id));
+  }, [members, membersOfGroup, selectedGroupId]);
+
 
   const visible = useMemo(() => {
     const range = periodRange(period);
