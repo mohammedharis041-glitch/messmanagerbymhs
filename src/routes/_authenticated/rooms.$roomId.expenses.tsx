@@ -136,6 +136,7 @@ function ExpensesPage() {
     return (expenses ?? []).filter((e) => {
       if (range && (e.spent_at < range.start || e.spent_at > range.end)) return false;
       if (category !== "all" && e.category_id !== category) return false;
+      if (group !== "all" && e.group_id !== group) return false;
       if (!term) return true;
       return (
         e.title.toLowerCase().includes(term) ||
@@ -143,18 +144,26 @@ function ExpensesPage() {
         (memberName.get(e.paid_by) ?? "").toLowerCase().includes(term)
       );
     });
-  }, [expenses, period, category, search, memberName]);
+  }, [expenses, period, category, group, search, memberName]);
 
   const total = visible.reduce((sum, e) => sum + Number(e.amount), 0);
 
+  function defaultParticipants(groupId: string) {
+    const ids = membersOfGroup.get(groupId);
+    return ids?.length ? [...ids] : (members ?? []).map((m) => m.user_id);
+  }
+
   function openCreate() {
     setEditing(null);
+    const groupId = group !== "all" ? group : (groups?.[0]?.id ?? "");
     form.reset({
       title: "",
       amount: "" as unknown as number,
       spent_at: toISODate(new Date()),
       category_id: categories?.[0]?.id ?? "",
+      group_id: groupId,
       paid_by: user?.id ?? "",
+      participants: defaultParticipants(groupId),
       notes: "",
     });
     setOpen(true);
@@ -162,15 +171,24 @@ function ExpensesPage() {
 
   function openEdit(expense: Expense) {
     setEditing(expense);
+    const groupId = expense.group_id ?? groups?.[0]?.id ?? "";
     form.reset({
       title: expense.title,
       amount: Number(expense.amount),
       spent_at: expense.spent_at,
       category_id: expense.category_id ?? "",
+      group_id: groupId,
       paid_by: expense.paid_by,
+      participants: participantMap?.get(expense.id) ?? defaultParticipants(groupId),
       notes: expense.notes ?? "",
     });
     setOpen(true);
+  }
+
+  /** Switching group re-seeds the included members with that group's roster. */
+  function onGroupChange(groupId: string) {
+    form.setValue("group_id", groupId, { shouldValidate: true });
+    form.setValue("participants", defaultParticipants(groupId), { shouldValidate: true });
   }
 
   async function onSubmit(raw: ExpenseForm) {
@@ -182,12 +200,13 @@ function ExpensesPage() {
       await saveExpense.mutateAsync({
         ...(editing ? { id: editing.id } : {}),
         userId: user.id,
-
+        participants: values.participants,
         values: {
           title: values.title,
           amount: values.amount,
           spent_at: values.spent_at,
           category_id: values.category_id || null,
+          group_id: values.group_id || null,
           paid_by: values.paid_by,
           notes: values.notes?.trim() ? values.notes.trim() : null,
         },
@@ -198,6 +217,7 @@ function ExpensesPage() {
       toast.error(error instanceof Error ? error.message : "Could not save the expense");
     }
   }
+
 
   async function confirmDelete() {
     if (!pendingDelete) return;
