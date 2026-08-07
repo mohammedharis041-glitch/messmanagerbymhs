@@ -157,5 +157,5 @@ export function useRoomStats({
       transfers: settle(balances),
       filtered: list,
     };
-  }, [expenses, members, categories, period]);
+  }, [expenses, members, categories, period, participants, groupMemberIds, groupId]);
 }
