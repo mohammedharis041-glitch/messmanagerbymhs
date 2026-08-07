@@ -52,6 +52,117 @@ export type Database = {
           },
         ]
       }
+      expense_group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          joined_at: string
+          left_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "expense_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_groups: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          room_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          room_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          room_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_groups_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_participants: {
+        Row: {
+          created_at: string
+          expense_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expense_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expense_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_participants_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -59,6 +170,7 @@ export type Database = {
           created_at: string
           created_by: string
           deleted_at: string | null
+          group_id: string | null
           id: string
           notes: string | null
           paid_by: string
@@ -74,6 +186,7 @@ export type Database = {
           created_at?: string
           created_by: string
           deleted_at?: string | null
+          group_id?: string | null
           id?: string
           notes?: string | null
           paid_by: string
@@ -89,6 +202,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           deleted_at?: string | null
+          group_id?: string | null
           id?: string
           notes?: string | null
           paid_by?: string
@@ -104,6 +218,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "expense_groups"
             referencedColumns: ["id"]
           },
           {
@@ -248,10 +369,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_expense: {
+        Args: { _expense_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_manage_room: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
       }
+      expense_room_id: { Args: { _expense_id: string }; Returns: string }
+      group_room_id: { Args: { _group_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -268,6 +395,7 @@ export type Database = {
         Args: { _room_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["room_role"]
       }
+      seed_default_groups: { Args: { _room_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "super_admin"
