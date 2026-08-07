@@ -327,7 +327,14 @@ function ExpensesPage() {
                     <p className="truncate text-[11px] text-muted-foreground">
                       {formatDate(e.spent_at)} · {memberName.get(e.paid_by) ?? "Member"}
                       {cat ? ` · ${cat.name}` : ""}
+                      {e.group_id && groupById.get(e.group_id)
+                        ? ` · ${groupById.get(e.group_id)!.name}`
+                        : ""}
+                      {participantMap?.get(e.id)?.length
+                        ? ` · split ${participantMap.get(e.id)!.length}`
+                        : ""}
                     </p>
+
                   </div>
                   <span className="shrink-0 text-[13px] font-semibold tabular-nums sm:text-sm">
                     {formatCurrency(Number(e.amount), currency)}
