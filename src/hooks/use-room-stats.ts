@@ -138,7 +138,7 @@ export function useRoomStats({
         paid,
         contributed: Number(m.monthly_contribution ?? 0),
         share,
-        days: daysByUser.get(m.user_id) ?? 0,
+        days: daysByUser.get(m.user_id)?.size ?? 0,
         balance: Math.round((paid - share) * 100) / 100,
       };
     });
