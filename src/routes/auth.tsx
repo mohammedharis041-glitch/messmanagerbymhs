@@ -107,20 +107,22 @@ function AuthPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-background px-3 py-6 sm:px-4 sm:py-10">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-primary opacity-10" />
-      <Card className="animate-scale-in relative w-full max-w-md rounded-4xl border-border elevation-2">
-        <CardHeader className="items-center text-center">
-          <div className="mb-2 inline-flex size-14 items-center justify-center rounded-3xl bg-gradient-primary text-primary-foreground">
-            <UtensilsCrossed className="size-6" />
+      <Card className="animate-scale-in relative w-full max-w-[380px] rounded-3xl border-border elevation-2 sm:max-w-md sm:rounded-4xl">
+        <CardHeader className="items-center space-y-1 px-4 py-4 text-center sm:px-6 sm:py-6">
+          <div className="mb-1 inline-flex size-11 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground sm:size-14 sm:rounded-3xl">
+            <UtensilsCrossed className="size-5 sm:size-6" />
           </div>
-          <CardTitle className="font-[Outfit] text-2xl">Mess Manager Pro</CardTitle>
-          <CardDescription>Sign in to manage your mess rooms and expenses</CardDescription>
+          <CardTitle className="font-[Outfit] text-lg sm:text-2xl">Mess Manager Pro</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Sign in to manage your rooms and expenses
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-3.5 px-4 pb-4 sm:space-y-5 sm:px-6 sm:pb-6">
           <Button
             variant="outline"
-            className="h-12 w-full rounded-2xl text-base"
+            className="h-10 w-full rounded-xl text-sm sm:h-12 sm:rounded-2xl sm:text-base"
             onClick={handleGoogle}
             disabled={busy !== null}
           >
@@ -128,9 +130,10 @@ function AuthPage() {
             Continue with Google
           </Button>
 
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground sm:text-xs">
             <span className="h-px flex-1 bg-border" /> or use email <span className="h-px flex-1 bg-border" />
           </div>
+
 
           {emailSent ? (
             <p className="rounded-2xl bg-primary-container p-4 text-center text-sm text-primary-container-foreground">
