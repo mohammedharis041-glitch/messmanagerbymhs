@@ -151,9 +151,9 @@ function AuthPage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin" className="pt-4">
+            <TabsContent value="signin" className="pt-3 sm:pt-4">
               <Form {...signInForm}>
-                <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
+                <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-3 sm:space-y-4">
                   <FormField
                     control={signInForm.control}
                     name="email"
@@ -180,7 +180,7 @@ function AuthPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="h-11 w-full rounded-2xl" disabled={busy !== null}>
+                  <Button type="submit" className="h-10 w-full rounded-xl sm:h-11 sm:rounded-2xl" disabled={busy !== null}>
                     {busy === "email" ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
                     Sign in
                   </Button>
@@ -188,9 +188,9 @@ function AuthPage() {
               </Form>
             </TabsContent>
 
-            <TabsContent value="signup" className="pt-4">
+            <TabsContent value="signup" className="pt-3 sm:pt-4">
               <Form {...signUpForm}>
-                <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
+                <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-3 sm:space-y-4">
                   <FormField
                     control={signUpForm.control}
                     name="fullName"
@@ -230,7 +230,7 @@ function AuthPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="h-11 w-full rounded-2xl" disabled={busy !== null}>
+                  <Button type="submit" className="h-10 w-full rounded-xl sm:h-11 sm:rounded-2xl" disabled={busy !== null}>
                     {busy === "email" ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
                     Create account
                   </Button>
