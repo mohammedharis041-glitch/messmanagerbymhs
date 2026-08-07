@@ -244,8 +244,22 @@ function ExpensesPage() {
             maxLength={80}
           />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
+        <div className="grid grid-cols-3 gap-1.5 sm:flex sm:gap-2">
+          <Select value={group} onValueChange={setGroup}>
+            <SelectTrigger className="h-9 rounded-2xl text-xs sm:w-40 sm:text-sm">
+              <SelectValue placeholder="Group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All groups</SelectItem>
+              {(groups ?? []).map((g) => (
+                <SelectItem key={g.id} value={g.id}>
+                  {g.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
+
             <SelectTrigger className="h-9 rounded-2xl text-xs sm:w-32 sm:text-sm">
               <SelectValue />
             </SelectTrigger>
