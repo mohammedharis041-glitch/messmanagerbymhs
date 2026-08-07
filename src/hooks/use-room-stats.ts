@@ -38,18 +38,30 @@ export function useRoomStats({
   members,
   categories,
   period,
+  participants,
+  groupMemberIds,
+  groupId = "all",
 }: {
   expenses: Expense[] | undefined;
   members: MemberWithProfile[] | undefined;
   categories: Category[] | undefined;
   period: PeriodKey;
+  /** expense id -> user ids the expense is shared between */
+  participants?: Map<string, string[]>;
+  /** group id -> user ids belonging to that group */
+  groupMemberIds?: Map<string, string[]>;
+  /** restrict every calculation to one expense group */
+  groupId?: string;
 }): RoomStats {
   return useMemo(() => {
     const range = periodRange(period);
-    const list = (expenses ?? []).filter((e) =>
-      range ? e.spent_at >= range.start && e.spent_at <= range.end : true,
-    );
+    const list = (expenses ?? []).filter((e) => {
+      if (range && (e.spent_at < range.start || e.spent_at > range.end)) return false;
+      if (groupId !== "all" && e.group_id !== groupId) return false;
+      return true;
+    });
     const roster = members ?? [];
+
 
     const totalExpense = list.reduce((sum, e) => sum + Number(e.amount), 0);
     const totalContribution = roster.reduce((sum, m) => sum + Number(m.monthly_contribution ?? 0), 0);
