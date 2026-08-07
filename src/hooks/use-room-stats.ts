@@ -47,11 +47,11 @@ export function useRoomStats({
   categories: Category[] | undefined;
   period: PeriodKey;
   /** expense id -> user ids the expense is shared between */
-  participants?: Map<string, string[]>;
+  participants?: Map<string, string[]> | undefined;
   /** group id -> user ids belonging to that group */
-  groupMemberIds?: Map<string, string[]>;
+  groupMemberIds?: Map<string, string[]> | undefined;
   /** restrict every calculation to one expense group */
-  groupId?: string;
+  groupId?: string | undefined;
 }): RoomStats {
   return useMemo(() => {
     const range = periodRange(period);
