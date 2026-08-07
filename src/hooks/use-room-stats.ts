@@ -38,18 +38,30 @@ export function useRoomStats({
   members,
   categories,
   period,
+  participants,
+  groupMemberIds,
+  groupId = "all",
 }: {
   expenses: Expense[] | undefined;
   members: MemberWithProfile[] | undefined;
   categories: Category[] | undefined;
   period: PeriodKey;
+  /** expense id -> user ids the expense is shared between */
+  participants?: Map<string, string[]> | undefined;
+  /** group id -> user ids belonging to that group */
+  groupMemberIds?: Map<string, string[]> | undefined;
+  /** restrict every calculation to one expense group */
+  groupId?: string | undefined;
 }): RoomStats {
   return useMemo(() => {
     const range = periodRange(period);
-    const list = (expenses ?? []).filter((e) =>
-      range ? e.spent_at >= range.start && e.spent_at <= range.end : true,
-    );
+    const list = (expenses ?? []).filter((e) => {
+      if (range && (e.spent_at < range.start || e.spent_at > range.end)) return false;
+      if (groupId !== "all" && e.group_id !== groupId) return false;
+      return true;
+    });
     const roster = members ?? [];
+
 
     const totalExpense = list.reduce((sum, e) => sum + Number(e.amount), 0);
     const totalContribution = roster.reduce((sum, m) => sum + Number(m.monthly_contribution ?? 0), 0);
@@ -84,20 +96,38 @@ export function useRoomStats({
       paidBy.set(e.paid_by, (paidBy.get(e.paid_by) ?? 0) + Number(e.amount));
     }
 
-    // Day-based fair share: every day's spend is split only between the members
-    // who were actually in the mess that day (pro-rata joining / leaving).
+    // Fair share per expense: split only between the members the expense was
+    // shared with, falling back to the expense group's roster, then the room
+    // roster — always restricted to members active on that day (pro-rata
+    // joining / leaving).
+    const byUserId = new Map(roster.map((m) => [m.user_id, m]));
     const shareByUser = new Map<string, number>();
-    const daysByUser = new Map<string, number>();
-    for (const [day, amount] of dayTotals) {
-      const active = roster.filter((m) => isActiveOn(m, day));
-      const pool = active.length ? active : roster;
+    const daysByUser = new Map<string, Set<string>>();
+
+    for (const e of list) {
+      const day = e.spent_at;
+      const explicit = participants?.get(e.id) ?? [];
+      const groupRoster = e.group_id ? (groupMemberIds?.get(e.group_id) ?? []) : [];
+      const candidateIds = explicit.length ? explicit : groupRoster.length ? groupRoster : roster.map((m) => m.user_id);
+
+      let pool = candidateIds
+        .map((id) => byUserId.get(id))
+        .filter((m): m is MemberWithProfile => Boolean(m) && isActiveOn(m as MemberWithProfile, day));
+      if (!pool.length) {
+        pool = candidateIds.map((id) => byUserId.get(id)).filter((m): m is MemberWithProfile => Boolean(m));
+      }
+      if (!pool.length) pool = roster;
       if (!pool.length) continue;
-      const each = amount / pool.length;
+
+      const each = Number(e.amount) / pool.length;
       for (const m of pool) {
         shareByUser.set(m.user_id, (shareByUser.get(m.user_id) ?? 0) + each);
-        daysByUser.set(m.user_id, (daysByUser.get(m.user_id) ?? 0) + 1);
+        const days = daysByUser.get(m.user_id) ?? new Set<string>();
+        days.add(day);
+        daysByUser.set(m.user_id, days);
       }
     }
+
 
     const balances: MemberBalance[] = roster.map((m) => {
       const paid = paidBy.get(m.user_id) ?? 0;
@@ -108,7 +138,7 @@ export function useRoomStats({
         paid,
         contributed: Number(m.monthly_contribution ?? 0),
         share,
-        days: daysByUser.get(m.user_id) ?? 0,
+        days: daysByUser.get(m.user_id)?.size ?? 0,
         balance: Math.round((paid - share) * 100) / 100,
       };
     });
@@ -127,5 +157,5 @@ export function useRoomStats({
       transfers: settle(balances),
       filtered: list,
     };
-  }, [expenses, members, categories, period]);
+  }, [expenses, members, categories, period, participants, groupMemberIds, groupId]);
 }

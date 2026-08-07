@@ -16,6 +16,7 @@ import { Route as AuthenticatedRoomsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedRoomsRoomIdRouteImport } from './routes/_authenticated/rooms.$roomId'
 import { Route as AuthenticatedRoomsRoomIdIndexRouteImport } from './routes/_authenticated/rooms.$roomId.index'
 import { Route as AuthenticatedRoomsRoomIdExpensesRouteImport } from './routes/_authenticated/rooms.$roomId.expenses'
+import { Route as AuthenticatedRoomsRoomIdGroupsRouteImport } from './routes/_authenticated/rooms.$roomId.groups'
 import { Route as AuthenticatedRoomsRoomIdMembersRouteImport } from './routes/_authenticated/rooms.$roomId.members'
 import { Route as AuthenticatedRoomsRoomIdSettingsRouteImport } from './routes/_authenticated/rooms.$roomId.settings'
 
@@ -56,6 +57,12 @@ const AuthenticatedRoomsRoomIdExpensesRoute =
     path: '/expenses',
     getParentRoute: () => AuthenticatedRoomsRoomIdRoute,
   } as any)
+const AuthenticatedRoomsRoomIdGroupsRoute =
+  AuthenticatedRoomsRoomIdGroupsRouteImport.update({
+    id: '/groups',
+    path: '/groups',
+    getParentRoute: () => AuthenticatedRoomsRoomIdRoute,
+  } as any)
 const AuthenticatedRoomsRoomIdMembersRoute =
   AuthenticatedRoomsRoomIdMembersRouteImport.update({
     id: '/members',
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/rooms/$roomId': typeof AuthenticatedRoomsRoomIdRouteWithChildren
   '/rooms/': typeof AuthenticatedRoomsIndexRoute
   '/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
+  '/rooms/$roomId/groups': typeof AuthenticatedRoomsRoomIdGroupsRoute
   '/rooms/$roomId/members': typeof AuthenticatedRoomsRoomIdMembersRoute
   '/rooms/$roomId/settings': typeof AuthenticatedRoomsRoomIdSettingsRoute
   '/rooms/$roomId/': typeof AuthenticatedRoomsRoomIdIndexRoute
@@ -84,6 +92,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/rooms': typeof AuthenticatedRoomsIndexRoute
   '/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
+  '/rooms/$roomId/groups': typeof AuthenticatedRoomsRoomIdGroupsRoute
   '/rooms/$roomId/members': typeof AuthenticatedRoomsRoomIdMembersRoute
   '/rooms/$roomId/settings': typeof AuthenticatedRoomsRoomIdSettingsRoute
   '/rooms/$roomId': typeof AuthenticatedRoomsRoomIdIndexRoute
@@ -96,6 +105,7 @@ export interface FileRoutesById {
   '/_authenticated/rooms/$roomId': typeof AuthenticatedRoomsRoomIdRouteWithChildren
   '/_authenticated/rooms/': typeof AuthenticatedRoomsIndexRoute
   '/_authenticated/rooms/$roomId/expenses': typeof AuthenticatedRoomsRoomIdExpensesRoute
+  '/_authenticated/rooms/$roomId/groups': typeof AuthenticatedRoomsRoomIdGroupsRoute
   '/_authenticated/rooms/$roomId/members': typeof AuthenticatedRoomsRoomIdMembersRoute
   '/_authenticated/rooms/$roomId/settings': typeof AuthenticatedRoomsRoomIdSettingsRoute
   '/_authenticated/rooms/$roomId/': typeof AuthenticatedRoomsRoomIdIndexRoute
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/rooms/$roomId'
     | '/rooms/'
     | '/rooms/$roomId/expenses'
+    | '/rooms/$roomId/groups'
     | '/rooms/$roomId/members'
     | '/rooms/$roomId/settings'
     | '/rooms/$roomId/'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/rooms'
     | '/rooms/$roomId/expenses'
+    | '/rooms/$roomId/groups'
     | '/rooms/$roomId/members'
     | '/rooms/$roomId/settings'
     | '/rooms/$roomId'
@@ -128,6 +140,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rooms/$roomId'
     | '/_authenticated/rooms/'
     | '/_authenticated/rooms/$roomId/expenses'
+    | '/_authenticated/rooms/$roomId/groups'
     | '/_authenticated/rooms/$roomId/members'
     | '/_authenticated/rooms/$roomId/settings'
     | '/_authenticated/rooms/$roomId/'
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRoomsRoomIdExpensesRouteImport
       parentRoute: typeof AuthenticatedRoomsRoomIdRoute
     }
+    '/_authenticated/rooms/$roomId/groups': {
+      id: '/_authenticated/rooms/$roomId/groups'
+      path: '/groups'
+      fullPath: '/rooms/$roomId/groups'
+      preLoaderRoute: typeof AuthenticatedRoomsRoomIdGroupsRouteImport
+      parentRoute: typeof AuthenticatedRoomsRoomIdRoute
+    }
     '/_authenticated/rooms/$roomId/members': {
       id: '/_authenticated/rooms/$roomId/members'
       path: '/members'
@@ -209,6 +229,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRoomsRoomIdRouteChildren {
   AuthenticatedRoomsRoomIdExpensesRoute: typeof AuthenticatedRoomsRoomIdExpensesRoute
+  AuthenticatedRoomsRoomIdGroupsRoute: typeof AuthenticatedRoomsRoomIdGroupsRoute
   AuthenticatedRoomsRoomIdMembersRoute: typeof AuthenticatedRoomsRoomIdMembersRoute
   AuthenticatedRoomsRoomIdSettingsRoute: typeof AuthenticatedRoomsRoomIdSettingsRoute
   AuthenticatedRoomsRoomIdIndexRoute: typeof AuthenticatedRoomsRoomIdIndexRoute
@@ -218,6 +239,7 @@ const AuthenticatedRoomsRoomIdRouteChildren: AuthenticatedRoomsRoomIdRouteChildr
   {
     AuthenticatedRoomsRoomIdExpensesRoute:
       AuthenticatedRoomsRoomIdExpensesRoute,
+    AuthenticatedRoomsRoomIdGroupsRoute: AuthenticatedRoomsRoomIdGroupsRoute,
     AuthenticatedRoomsRoomIdMembersRoute: AuthenticatedRoomsRoomIdMembersRoute,
     AuthenticatedRoomsRoomIdSettingsRoute:
       AuthenticatedRoomsRoomIdSettingsRoute,

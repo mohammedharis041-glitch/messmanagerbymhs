@@ -41,6 +41,8 @@ import {
   useSaveExpense,
   type Expense,
 } from "@/hooks/use-mess";
+import { useExpenseParticipants, useGroupMembers, useGroups } from "@/hooks/use-groups";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, formatDate, periodRange, toISODate, type PeriodKey } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/rooms/$roomId/expenses")({
@@ -52,7 +54,9 @@ const expenseSchema = z.object({
   amount: z.coerce.number().positive("Enter an amount above zero").max(1_000_000),
   spent_at: z.string().min(8, "Pick a date"),
   category_id: z.string().min(1, "Pick a category"),
+  group_id: z.string().min(1, "Pick an expense group"),
   paid_by: z.string().min(1, "Who paid?"),
+  participants: z.array(z.string()).min(1, "Select at least one member"),
   notes: z.string().trim().max(500).optional(),
 });
 
@@ -65,6 +69,9 @@ function ExpensesPage() {
   const { data: expenses, isLoading } = useExpenses(roomId);
   const { data: categories } = useCategories(roomId);
   const { data: members } = useMembers(roomId);
+  const { data: groups } = useGroups(roomId);
+  const { data: groupMembers } = useGroupMembers(roomId);
+  const { data: participantMap } = useExpenseParticipants(roomId);
   const { canManage } = useRoomRole(roomId, user?.id, isSuperAdmin);
   const saveExpense = useSaveExpense(roomId);
   const deleteExpense = useDeleteExpense(roomId);
@@ -74,6 +81,7 @@ function ExpensesPage() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [group, setGroup] = useState("all");
   const [period, setPeriod] = useState<PeriodKey>("month");
   const [editing, setEditing] = useState<Expense | null>(null);
   const [open, setOpen] = useState(false);
@@ -88,6 +96,16 @@ function ExpensesPage() {
     () => new Map((categories ?? []).map((c) => [c.id, c])),
     [categories],
   );
+  const groupById = useMemo(() => new Map((groups ?? []).map((g) => [g.id, g])), [groups]);
+  const membersOfGroup = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const row of groupMembers ?? []) {
+      const list = map.get(row.group_id) ?? [];
+      list.push(row.user_id);
+      map.set(row.group_id, list);
+    }
+    return map;
+  }, [groupMembers]);
 
   const form = useForm<ExpenseForm>({
     resolver: zodResolver(expenseSchema),
@@ -96,10 +114,21 @@ function ExpensesPage() {
       amount: "" as unknown as number,
       spent_at: toISODate(new Date()),
       category_id: "",
+      group_id: "",
       paid_by: user?.id ?? "",
+      participants: [],
       notes: "",
     },
   });
+
+  const selectedGroupId = form.watch("group_id");
+  const eligible = useMemo(() => {
+    const ids = membersOfGroup.get(selectedGroupId ?? "");
+    if (!ids?.length) return members ?? [];
+    const set = new Set(ids);
+    return (members ?? []).filter((m) => set.has(m.user_id));
+  }, [members, membersOfGroup, selectedGroupId]);
+
 
   const visible = useMemo(() => {
     const range = periodRange(period);
@@ -107,6 +136,7 @@ function ExpensesPage() {
     return (expenses ?? []).filter((e) => {
       if (range && (e.spent_at < range.start || e.spent_at > range.end)) return false;
       if (category !== "all" && e.category_id !== category) return false;
+      if (group !== "all" && e.group_id !== group) return false;
       if (!term) return true;
       return (
         e.title.toLowerCase().includes(term) ||
@@ -114,18 +144,26 @@ function ExpensesPage() {
         (memberName.get(e.paid_by) ?? "").toLowerCase().includes(term)
       );
     });
-  }, [expenses, period, category, search, memberName]);
+  }, [expenses, period, category, group, search, memberName]);
 
   const total = visible.reduce((sum, e) => sum + Number(e.amount), 0);
 
+  function defaultParticipants(groupId: string) {
+    const ids = membersOfGroup.get(groupId);
+    return ids?.length ? [...ids] : (members ?? []).map((m) => m.user_id);
+  }
+
   function openCreate() {
     setEditing(null);
+    const groupId = group !== "all" ? group : (groups?.[0]?.id ?? "");
     form.reset({
       title: "",
       amount: "" as unknown as number,
       spent_at: toISODate(new Date()),
       category_id: categories?.[0]?.id ?? "",
+      group_id: groupId,
       paid_by: user?.id ?? "",
+      participants: defaultParticipants(groupId),
       notes: "",
     });
     setOpen(true);
@@ -133,15 +171,24 @@ function ExpensesPage() {
 
   function openEdit(expense: Expense) {
     setEditing(expense);
+    const groupId = expense.group_id ?? groups?.[0]?.id ?? "";
     form.reset({
       title: expense.title,
       amount: Number(expense.amount),
       spent_at: expense.spent_at,
       category_id: expense.category_id ?? "",
+      group_id: groupId,
       paid_by: expense.paid_by,
+      participants: participantMap?.get(expense.id) ?? defaultParticipants(groupId),
       notes: expense.notes ?? "",
     });
     setOpen(true);
+  }
+
+  /** Switching group re-seeds the included members with that group's roster. */
+  function onGroupChange(groupId: string) {
+    form.setValue("group_id", groupId, { shouldValidate: true });
+    form.setValue("participants", defaultParticipants(groupId), { shouldValidate: true });
   }
 
   async function onSubmit(raw: ExpenseForm) {
@@ -153,12 +200,13 @@ function ExpensesPage() {
       await saveExpense.mutateAsync({
         ...(editing ? { id: editing.id } : {}),
         userId: user.id,
-
+        participants: values.participants,
         values: {
           title: values.title,
           amount: values.amount,
           spent_at: values.spent_at,
           category_id: values.category_id || null,
+          group_id: values.group_id || null,
           paid_by: values.paid_by,
           notes: values.notes?.trim() ? values.notes.trim() : null,
         },
@@ -169,6 +217,7 @@ function ExpensesPage() {
       toast.error(error instanceof Error ? error.message : "Could not save the expense");
     }
   }
+
 
   async function confirmDelete() {
     if (!pendingDelete) return;
@@ -195,8 +244,22 @@ function ExpensesPage() {
             maxLength={80}
           />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
+        <div className="grid grid-cols-3 gap-1.5 sm:flex sm:gap-2">
+          <Select value={group} onValueChange={setGroup}>
+            <SelectTrigger className="h-9 rounded-2xl text-xs sm:w-40 sm:text-sm">
+              <SelectValue placeholder="Group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All groups</SelectItem>
+              {(groups ?? []).map((g) => (
+                <SelectItem key={g.id} value={g.id}>
+                  {g.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
+
             <SelectTrigger className="h-9 rounded-2xl text-xs sm:w-32 sm:text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -264,7 +327,14 @@ function ExpensesPage() {
                     <p className="truncate text-[11px] text-muted-foreground">
                       {formatDate(e.spent_at)} · {memberName.get(e.paid_by) ?? "Member"}
                       {cat ? ` · ${cat.name}` : ""}
+                      {e.group_id && groupById.get(e.group_id)
+                        ? ` · ${groupById.get(e.group_id)!.name}`
+                        : ""}
+                      {participantMap?.get(e.id)?.length
+                        ? ` · split ${participantMap.get(e.id)!.length}`
+                        : ""}
                     </p>
+
                   </div>
                   <span className="shrink-0 text-[13px] font-semibold tabular-nums sm:text-sm">
                     {formatCurrency(Number(e.amount), currency)}
@@ -356,6 +426,31 @@ function ExpensesPage() {
               </div>
               <FormField
                 control={form.control}
+                name="group_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Expense group</FormLabel>
+                    <Select onValueChange={onGroupChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a group" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(groups ?? []).map((g) => (
+                          <SelectItem key={g.id} value={g.id}>
+                            {g.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="category_id"
                 render={({ field }) => (
                   <FormItem>
@@ -413,6 +508,58 @@ function ExpensesPage() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="participants"
+                render={({ field }) => {
+                  const selected = new Set(field.value ?? []);
+                  const allIds = eligible.map((m) => m.user_id);
+                  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
+                  return (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Members included</FormLabel>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-primary"
+                          onClick={() => field.onChange(allSelected ? [] : allIds)}
+                        >
+                          {allSelected ? "Clear all" : "Select all"}
+                        </button>
+                      </div>
+                      <div className="grid max-h-44 grid-cols-1 gap-1 overflow-y-auto rounded-2xl border border-border p-2 sm:grid-cols-2">
+                        {eligible.length ? (
+                          eligible.map((m) => (
+                            <label
+                              key={m.user_id}
+                              className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm hover:bg-accent"
+                            >
+                              <Checkbox
+                                checked={selected.has(m.user_id)}
+                                onCheckedChange={(checked) => {
+                                  const next = new Set(selected);
+                                  if (checked) next.add(m.user_id);
+                                  else next.delete(m.user_id);
+                                  field.onChange([...next]);
+                                }}
+                              />
+                              <span className="truncate">{m.name}</span>
+                            </label>
+                          ))
+                        ) : (
+                          <p className="px-2 py-1.5 text-xs text-muted-foreground">
+                            This group has no members yet.
+                          </p>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+
 
               <FormField
                 control={form.control}

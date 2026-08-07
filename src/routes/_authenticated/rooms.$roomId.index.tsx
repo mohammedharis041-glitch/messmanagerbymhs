@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -18,9 +18,12 @@ import { ArrowDownRight, ArrowUpRight, Receipt, TrendingUp, Users, Wallet } from
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useExpenseParticipants, useGroupMembers, useGroups } from "@/hooks/use-groups";
 import { useCategories, useExpenses, useMembers, useRoom } from "@/hooks/use-mess";
 import { useRoomStats } from "@/hooks/use-room-stats";
+
 import { formatCurrency, formatDate, type PeriodKey } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/rooms/$roomId/")({
@@ -38,17 +41,54 @@ const periods: Array<{ key: PeriodKey; label: string }> = [
 function RoomDashboard() {
   const { roomId } = Route.useParams();
   const [period, setPeriod] = useState<PeriodKey>("month");
+  const [group, setGroup] = useState<string>("all");
   const { data: room } = useRoom(roomId);
   const { data: members } = useMembers(roomId);
   const { data: categories } = useCategories(roomId);
   const { data: expenses } = useExpenses(roomId);
-  const stats = useRoomStats({ expenses, members, categories, period });
+  const { data: groups } = useGroups(roomId);
+  const { data: groupMembers } = useGroupMembers(roomId);
+  const { data: participants } = useExpenseParticipants(roomId);
+
+  const groupMemberIds = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const row of groupMembers ?? []) {
+      const list = map.get(row.group_id) ?? [];
+      list.push(row.user_id);
+      map.set(row.group_id, list);
+    }
+    return map;
+  }, [groupMembers]);
+
+  const stats = useRoomStats({
+    expenses,
+    members,
+    categories,
+    period,
+    participants,
+    groupMemberIds,
+    groupId: group,
+  });
   const currency = room?.currency ?? "AED";
 
   const recent = stats.filtered.slice(0, 5);
 
   return (
     <div className="space-y-2.5 sm:space-y-5">
+      <Select value={group} onValueChange={setGroup}>
+        <SelectTrigger className="h-9 w-full rounded-2xl text-xs sm:w-56 sm:text-sm">
+          <SelectValue placeholder="All groups" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All groups</SelectItem>
+          {(groups ?? []).map((g) => (
+            <SelectItem key={g.id} value={g.id}>
+              {g.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
       <Tabs value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
         <TabsList className="w-full justify-between rounded-2xl">
           {periods.map((p) => (
@@ -58,6 +98,7 @@ function RoomDashboard() {
           ))}
         </TabsList>
       </Tabs>
+
 
       <Card className="animate-slide-up overflow-hidden rounded-3xl sm:rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
         <CardContent className="p-3.5 sm:p-6">
