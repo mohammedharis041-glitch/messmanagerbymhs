@@ -426,6 +426,31 @@ function ExpensesPage() {
               </div>
               <FormField
                 control={form.control}
+                name="group_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Expense group</FormLabel>
+                    <Select onValueChange={onGroupChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a group" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(groups ?? []).map((g) => (
+                          <SelectItem key={g.id} value={g.id}>
+                            {g.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="category_id"
                 render={({ field }) => (
                   <FormItem>
