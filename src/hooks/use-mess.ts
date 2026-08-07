@@ -190,6 +190,7 @@ export type ExpenseInput = {
   amount: number;
   spent_at: string;
   category_id: string | null;
+  group_id: string | null;
   paid_by: string;
   notes: string | null;
 };
@@ -197,23 +198,52 @@ export type ExpenseInput = {
 export function useSaveExpense(roomId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, values, userId }: { id?: string; values: ExpenseInput; userId: string }) => {
+    mutationFn: async ({
+      id,
+      values,
+      userId,
+      participants,
+    }: {
+      id?: string;
+      values: ExpenseInput;
+      userId: string;
+      participants: string[];
+    }) => {
+      let expenseId = id;
       if (id) {
-        const { data, error } = await supabase.from("expenses").update(values).eq("id", id).select().single();
+        const { error } = await supabase.from("expenses").update(values).eq("id", id);
         if (error) throw error;
-        return data;
+      } else {
+        const { data, error } = await supabase
+          .from("expenses")
+          .insert({ ...values, room_id: roomId, created_by: userId })
+          .select()
+          .single();
+        if (error) throw error;
+        expenseId = data.id;
       }
-      const { data, error } = await supabase
-        .from("expenses")
-        .insert({ ...values, room_id: roomId, created_by: userId })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+
+      if (expenseId) {
+        const { error: delError } = await supabase
+          .from("expense_participants")
+          .delete()
+          .eq("expense_id", expenseId);
+        if (delError) throw delError;
+        if (participants.length) {
+          const rows = participants.map((user_id) => ({ expense_id: expenseId as string, user_id }));
+          const { error: insError } = await supabase.from("expense_participants").insert(rows);
+          if (insError) throw insError;
+        }
+      }
+      return expenseId as string;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: roomKeys.expenses(roomId) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: roomKeys.expenses(roomId) });
+      void qc.invalidateQueries({ queryKey: ["rooms", roomId, "participants"] });
+    },
   });
 }
+
 
 export function useDeleteExpense(roomId: string) {
   const qc = useQueryClient();
