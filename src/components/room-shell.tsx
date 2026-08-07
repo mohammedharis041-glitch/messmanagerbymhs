@@ -30,9 +30,11 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { to: "/rooms/$roomId", label: "Home", icon: LayoutDashboard, exact: true },
   { to: "/rooms/$roomId/expenses", label: "Expenses", icon: Receipt, exact: false },
+  { to: "/rooms/$roomId/groups", label: "Groups", icon: Layers, exact: false },
   { to: "/rooms/$roomId/members", label: "Members", icon: Users, exact: false },
   { to: "/rooms/$roomId/settings", label: "Settings", icon: Settings, exact: false },
 ] as const;
+
 
 export function RoomShell({
   roomId,
