@@ -752,7 +752,7 @@ Every form, button, report, authentication flow, cloud sync, and calculation mus
 
 The application should be production-ready, scalable, secure, responsive, and suitable for deployment with Firebase Hosting and later packaging into Android and iOS apps using Capacitor.
 
-Live app: https://messmanagerbymhs.lovable.app
+
 
 ## Development
 
