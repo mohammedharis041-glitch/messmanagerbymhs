@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportError } from "../lib/error-reporting";
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -41,7 +41,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -90,8 +90,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Track shared mess expenses, contributions and wallet balance across rooms, then settle up in the fewest transfers. Works offline-friendly on phone, tablet and desktop." },
       { property: "og:description", content: "Track shared mess expenses, contributions and wallet balance across rooms, then settle up in the fewest transfers. Works offline-friendly on phone, tablet and desktop." },
       { name: "twitter:description", content: "Track shared mess expenses, contributions and wallet balance across rooms, then settle up in the fewest transfers. Works offline-friendly on phone, tablet and desktop." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4894dc39-f40a-4a1a-ac52-ae60f3662591/id-preview-df36b8df--2c5eb5cf-ef05-41db-a097-7cbce16eaeb0.lovable.app-1785885967074.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4894dc39-f40a-4a1a-ac52-ae60f3662591/id-preview-df36b8df--2c5eb5cf-ef05-41db-a097-7cbce16eaeb0.lovable.app-1785885967074.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
