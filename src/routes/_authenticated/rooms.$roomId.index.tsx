@@ -72,24 +72,40 @@ function RoomDashboard() {
   const currency = room?.currency ?? "AED";
 
   const recent = stats.filtered.slice(0, 5);
+  const panel = (key: PanelKey) => (view === key ? "" : "hidden lg:block");
 
   return (
-    <div className="space-y-2.5 sm:space-y-5">
-      <Select value={group} onValueChange={setGroup}>
-        <SelectTrigger className="h-9 w-full rounded-2xl text-xs sm:w-56 sm:text-sm">
-          <SelectValue placeholder="All groups" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All groups</SelectItem>
-          {(groups ?? []).map((g) => (
-            <SelectItem key={g.id} value={g.id}>
-              {g.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="space-y-2 sm:space-y-5">
+      <div className="flex items-center gap-2">
+        <Select value={group} onValueChange={setGroup}>
+          <SelectTrigger className="h-8 flex-1 rounded-xl text-xs sm:h-9 sm:w-56 sm:flex-none sm:rounded-2xl sm:text-sm">
+            <SelectValue placeholder="All groups" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All groups</SelectItem>
+            {(groups ?? []).map((g) => (
+              <SelectItem key={g.id} value={g.id}>
+                {g.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Tabs value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
+        <Select value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
+          <SelectTrigger className="h-8 w-24 rounded-xl text-xs sm:hidden">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {periods.map((p) => (
+              <SelectItem key={p.key} value={p.key}>
+                {p.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Tabs value={period} onValueChange={(v) => setPeriod(v as PeriodKey)} className="hidden sm:block">
         <TabsList className="w-full justify-between rounded-2xl">
           {periods.map((p) => (
             <TabsTrigger key={p.key} value={p.key} className="flex-1 rounded-xl text-xs sm:text-sm">
@@ -100,30 +116,30 @@ function RoomDashboard() {
       </Tabs>
 
 
-      <Card className="animate-slide-up overflow-hidden rounded-3xl sm:rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
-        <CardContent className="p-3.5 sm:p-6">
-          <p className="text-sm/relaxed opacity-90">Mess wallet balance</p>
-          <p className="mt-1 font-[Outfit] text-2xl font-bold sm:text-4xl tabular-nums">
+      <Card className="animate-slide-up overflow-hidden rounded-2xl sm:rounded-4xl border-0 bg-gradient-primary text-primary-foreground elevation-3">
+        <CardContent className="p-3 sm:p-6">
+          <p className="text-[11px] opacity-90 sm:text-sm/relaxed">Mess wallet balance</p>
+          <p className="font-[Outfit] text-xl font-bold sm:mt-1 sm:text-4xl tabular-nums">
             {formatCurrency(stats.walletBalance, currency)}
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-2.5 text-xs sm:mt-5 sm:gap-3 sm:text-sm">
-            <div className="rounded-2xl bg-white/15 p-2.5 sm:p-3">
+          <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] sm:mt-5 sm:gap-3 sm:text-sm">
+            <div className="rounded-xl bg-white/15 px-2 py-1.5 sm:rounded-2xl sm:p-3">
               <span className="flex items-center gap-1 opacity-90">
-                <ArrowDownRight className="size-4" /> Contributions
+                <ArrowDownRight className="size-3.5 sm:size-4" /> Contributions
               </span>
-              <p className="mt-1 font-semibold tabular-nums">{formatCurrency(stats.totalContribution, currency)}</p>
+              <p className="font-semibold tabular-nums sm:mt-1">{formatCurrency(stats.totalContribution, currency)}</p>
             </div>
-            <div className="rounded-2xl bg-black/15 p-2.5 sm:p-3">
+            <div className="rounded-xl bg-black/15 px-2 py-1.5 sm:rounded-2xl sm:p-3">
               <span className="flex items-center gap-1 opacity-90">
-                <ArrowUpRight className="size-4" /> Expenses
+                <ArrowUpRight className="size-3.5 sm:size-4" /> Expenses
               </span>
-              <p className="mt-1 font-semibold tabular-nums">{formatCurrency(stats.totalExpense, currency)}</p>
+              <p className="font-semibold tabular-nums sm:mt-1">{formatCurrency(stats.totalExpense, currency)}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
         <StatCard icon={Receipt} label="Entries" value={String(stats.expenseCount)} delay={0} />
         <StatCard icon={Users} label="Members" value={String(members?.length ?? 0)} delay={60} />
         <StatCard icon={TrendingUp} label="Per head" value={formatCurrency(stats.perHead, currency)} delay={120} />
@@ -135,8 +151,18 @@ function RoomDashboard() {
         />
       </div>
 
+      <Tabs value={view} onValueChange={(v) => setView(v as PanelKey)} className="lg:hidden">
+        <TabsList className="w-full justify-between rounded-xl">
+          {panels.map((p) => (
+            <TabsTrigger key={p.key} value={p.key} className="flex-1 rounded-lg text-[11px]">
+              {p.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        <Card className="animate-slide-up rounded-2xl sm:rounded-3xl">
+        <Card className={`animate-slide-up rounded-2xl sm:rounded-3xl ${panel("trend")}`}>
           <CardHeader className="p-3 pb-1.5 sm:p-6 sm:pb-3">
             <CardTitle className="font-[Outfit] text-sm sm:text-base">Spending trend</CardTitle>
             <CardDescription className="text-xs">Daily totals for the selected period</CardDescription>
