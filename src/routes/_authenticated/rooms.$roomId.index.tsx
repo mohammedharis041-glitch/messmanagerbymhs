@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ArrowDownRight, ArrowUpRight, Receipt, TrendingUp, Users, Wallet } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Plus, Receipt, TrendingUp, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -306,6 +306,17 @@ function RoomDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <Button
+        asChild
+        size="icon"
+        className="fixed bottom-16 right-3 z-40 size-10 rounded-xl elevation-2 md:hidden"
+        aria-label="Add expense"
+      >
+        <Link to="/rooms/$roomId/expenses" params={{ roomId }}>
+          <Plus className="size-5" />
+        </Link>
+      </Button>
     </div>
   );
 }
