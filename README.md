@@ -752,17 +752,7 @@ Every form, button, report, authentication flow, cloud sync, and calculation mus
 
 The application should be production-ready, scalable, secure, responsive, and suitable for deployment with Firebase Hosting and later packaging into Android and iOS apps using Capacitor.
 
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://messmanagerbymhs.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/2c5eb5cf-ef05-41db-a097-7cbce16eaeb0).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Live app: https://messmanagerbymhs.lovable.app
 
 ## Development
 
