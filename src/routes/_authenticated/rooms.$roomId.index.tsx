@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ArrowDownRight, ArrowUpRight, Receipt, TrendingUp, Users, Wallet } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Plus, Receipt, TrendingUp, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
