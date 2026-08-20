@@ -62,7 +62,7 @@ function RoomsPage() {
   // Members added to a room by an admin land straight on that room's dashboard.
   useEffect(() => {
     const only = rooms?.[0];
-    if (isLoading || autoOpened.current || !only || rooms.length !== 1) return;
+    if (isLoading || autoOpened.current || !only || rooms?.length !== 1) return;
     if (typeof window !== "undefined" && sessionStorage.getItem("mm-auto-room") === "done") return;
     autoOpened.current = true;
     sessionStorage.setItem("mm-auto-room", "done");
