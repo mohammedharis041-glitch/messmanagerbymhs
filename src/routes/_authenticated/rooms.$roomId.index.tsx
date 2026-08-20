@@ -30,6 +30,16 @@ export const Route = createFileRoute("/_authenticated/rooms/$roomId/")({
   component: RoomDashboard,
 });
 
+type PanelKey = "trend" | "category" | "member" | "settle" | "recent";
+
+const panels: Array<{ key: PanelKey; label: string }> = [
+  { key: "trend", label: "Trend" },
+  { key: "category", label: "Category" },
+  { key: "member", label: "Member" },
+  { key: "settle", label: "Settle" },
+  { key: "recent", label: "Recent" },
+];
+
 const periods: Array<{ key: PeriodKey; label: string }> = [
   { key: "today", label: "Today" },
   { key: "week", label: "7 days" },
@@ -42,6 +52,7 @@ function RoomDashboard() {
   const { roomId } = Route.useParams();
   const [period, setPeriod] = useState<PeriodKey>("month");
   const [group, setGroup] = useState<string>("all");
+  const [view, setView] = useState<PanelKey>("trend");
   const { data: room } = useRoom(roomId);
   const { data: members } = useMembers(roomId);
   const { data: categories } = useCategories(roomId);
