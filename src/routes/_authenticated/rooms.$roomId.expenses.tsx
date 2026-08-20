@@ -295,7 +295,7 @@ function ExpensesPage() {
               {formatCurrency(total, currency)}
             </p>
           </div>
-          <Button onClick={openCreate} size="sm" className="shrink-0 rounded-full">
+          <Button onClick={openCreate} size="sm" className="hidden shrink-0 rounded-full md:flex">
             <Plus className="mr-1 size-4" /> Add
           </Button>
         </CardContent>
