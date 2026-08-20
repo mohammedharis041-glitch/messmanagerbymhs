@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -57,6 +57,16 @@ function RoomsPage() {
   const joinRoom = useJoinRoom();
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const autoOpened = useRef(false);
+
+  // Members added to a room by an admin land straight on that room's dashboard.
+  useEffect(() => {
+    if (isLoading || autoOpened.current || !rooms || rooms.length !== 1) return;
+    if (typeof window !== "undefined" && sessionStorage.getItem("mm-auto-room") === "done") return;
+    autoOpened.current = true;
+    sessionStorage.setItem("mm-auto-room", "done");
+    void navigate({ to: "/rooms/$roomId", params: { roomId: rooms[0].id }, replace: true });
+  }, [isLoading, rooms, navigate]);
 
   const createForm = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(createSchema),
