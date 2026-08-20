@@ -61,11 +61,12 @@ function RoomsPage() {
 
   // Members added to a room by an admin land straight on that room's dashboard.
   useEffect(() => {
-    if (isLoading || autoOpened.current || !rooms || rooms.length !== 1) return;
+    const only = rooms?.[0];
+    if (isLoading || autoOpened.current || !only || rooms?.length !== 1) return;
     if (typeof window !== "undefined" && sessionStorage.getItem("mm-auto-room") === "done") return;
     autoOpened.current = true;
     sessionStorage.setItem("mm-auto-room", "done");
-    void navigate({ to: "/rooms/$roomId", params: { roomId: rooms[0].id }, replace: true });
+    void navigate({ to: "/rooms/$roomId", params: { roomId: only.id }, replace: true });
   }, [isLoading, rooms, navigate]);
 
   const createForm = useForm<z.infer<typeof createSchema>>({
