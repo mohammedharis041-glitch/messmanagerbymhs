@@ -603,10 +603,10 @@ function ExpensesPage() {
       <Button
         onClick={openCreate}
         size="icon"
-        className="fixed bottom-20 right-4 z-40 size-12 rounded-2xl elevation-2 md:hidden"
+        className="fixed bottom-20 right-4 z-40 size-10 rounded-xl elevation-2 md:hidden"
         aria-label="Add expense"
       >
-        <Plus className="size-6" />
+        <Plus className="size-5" />
       </Button>
 
       <Badge className="sr-only">{visible.length}</Badge>
